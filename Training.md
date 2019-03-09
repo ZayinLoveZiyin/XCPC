@@ -1,13 +1,13 @@
 
 Problem            |   A    |   B    |   C    |   D    |   E    |   F    |   G    |   H    |   I    |   J    |   K    |   L
-:-----------------------------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:
-CCPC-Wannafly Winter Camp Day1 |[√][128]|        |        |[√][103]|        |        |        |[√][104]|[√][105]|[√][106]|[√][109]| - 
-CCPC-Wannafly Winter Camp Day2 |   ·    |[√][124]|   ·    |[√][126]|[√][127]|        |[√][121]|        |[√][107]|[√][118]|        |[√][110]
-CCPC-Wannafly Winter Camp Day3 |        |   ·    |[√][114]|        |        |[√][111]|        |[√][113]|   ·    |[√][112]|    -   | - 
-CCPC-Wannafly Winter Camp Day4 |        |        |        |        |   ·    |        |        |[√][123]|        |   ·    |    ·   | -
-CCPC-Wannafly Winter Camp Day5 |   ·    |[√][122]|[√][115]|[√][125]|        |[√][119]|[√][120]|[√][100]|        |        |    -   | -
-CCPC-Wannafly Winter Camp Day7 |        |[√][102]|        |        |        |        |        |        |[√][116]|[√][101]|    -   | - 
-CCPC-Wannafly Winter Camp Day8 |        |   ·    |   ·    |   ·    |        |   ·    |        |   ·    |[√][117]|   ·    |    -   | -
+:                             :|:      :|:      :|:      :|:      :|:      :|:      :|:      :|:      :|:      :|:      :|:      :|:      :
+CCPC Wannafly Winter Camp Day1 |[√][128]|        |        |[√][103]|        |        |        |[√][104]|[√][105]|[√][106]|[√][109]|   
+CCPC Wannafly Winter Camp Day2 |   ·    |[√][124]|   ·    |[√][126]|[√][127]|        |[√][121]|        |[√][107]|[√][118]|        |[√][110]
+CCPC Wannafly Winter Camp Day3 |        |   ·    |[√][114]|        |        |[√][111]|        |[√][113]|   ·    |[√][112]|        |   
+CCPC Wannafly Winter Camp Day4 |        |        |        |        |   ·    |        |        |[√][123]|        |   ·    |    ·   |  
+CCPC Wannafly Winter Camp Day5 |   ·    |[√][122]|[√][115]|[√][125]|        |[√][119]|[√][120]|[√][100]|        |        |        |  
+CCPC Wannafly Winter Camp Day7 |        |[√][102]|        |        |        |        |        |        |[√][116]|[√][101]|        |   
+CCPC Wannafly Winter Camp Day8 |        |   ·    |   ·    |   ·    |        |   ·    |        |   ·    |[√][117]|   ·    |        |  
 
 [100]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day5/H_Zayin.cpp
 [101]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day7/J_Zayin.cpp
