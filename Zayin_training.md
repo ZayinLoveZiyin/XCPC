@@ -1,13 +1,13 @@
 
-Problem            |   A    |   B    |   C    |   D    |   E    |   F    |   G    |   H    |   I    |   J    |   K    |   L
-:-----------------------------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:
-CCPC Wannafly Winter Camp Day1 |[√][128]|        |        |[√][103]|        |        |        |[√][104]|[√][105]|[√][106]|[√][109]|   
-CCPC Wannafly Winter Camp Day2 |   ·    |[√][124]|   ·    |[√][126]|[√][127]|        |[√][121]|        |[√][107]|[√][118]|        |[√][110]
-CCPC Wannafly Winter Camp Day3 |        |   ·    |[√][114]|        |        |[√][111]|        |[√][113]|   ·    |[√][112]|        |   
-CCPC Wannafly Winter Camp Day4 |        |        |        |        |   ·    |        |        |[√][123]|        |   ·    |    ·   |  
-CCPC Wannafly Winter Camp Day5 |   ·    |[√][122]|[√][115]|[√][125]|        |[√][119]|[√][120]|[√][100]|        |        |        |  
-CCPC Wannafly Winter Camp Day7 |        |[√][102]|        |        |        |        |        |        |[√][116]|[√][101]|        |   
-CCPC Wannafly Winter Camp Day8 |        |   ·    |   ·    |   ·    |        |   ·    |        |   ·    |[√][117]|   ·    |        |  
+contest                       |   A    |   B    |   C    |   D    |   E    |   F    |   G    |   H    |   I    |   J    |   K    |   L
+:----------------------------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:
+CCPC Wannafly WC 2019 Day1    |[√][128]|        |        |[√][103]|        |        |        |[√][104]|[√][105]|[√][106]|[√][109]| - 
+CCPC Wannafly WC 2019 Day2    |[√][139]|[√][124]|   ·    |[√][126]|[√][127]|        |[√][121]|        |[√][107]|[√][118]|        |[√][110]
+CCPC Wannafly WC 2019 Day3    |        |[√][134]|[√][114]|        |[√][135]|[√][111]|        |[√][113]|[√][130]|[√][112]|    -   | - 
+CCPC Wannafly WC 2019 Day4    |        |        |        |        |[√][132]|        |        |[√][123]|        |[√][129]|[√][131]| -
+CCPC Wannafly WC 2019 Day5    |[√][133]|[√][122]|[√][115]|[√][125]|        |[√][119]|[√][120]|[√][100]|        |        |    -   | -
+CCPC Wannafly WC 2019 Day7    |        |[√][102]|        |        |        |        |        |        |[√][116]|[√][101]|    -   | - 
+CCPC Wannafly WC 2019 Day8    |        |[√][138]|   ·    |   ·    |        |   ·    |        |[√][136]|[√][117]|[√][137]|    -   | -
 
 [100]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day5/H_Zayin.cpp
 [101]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day7/J_Zayin.cpp
@@ -37,3 +37,14 @@ CCPC Wannafly Winter Camp Day8 |        |   ·    |   ·    |   ·    |        |
 [126]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day2/D_Zayin.cpp
 [127]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day2/E_Zayin.cpp
 [128]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day1/A_Zayin.cpp
+[129]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day4/J_Zayin.cpp
+[130]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day3/I_Zayin.cpp
+[131]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day4/K_Zayin.cpp
+[132]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day4/E_Zayin.cpp
+[133]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day5/A_Zayin.cpp
+[134]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day3/B_Zayin.cpp
+[135]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day3/E_Zayin.cpp
+[136]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day8/H_Zayin.cpp
+[137]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day8/J_Zayin.cpp
+[138]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day8/B_Zayin.cpp
+[139]: https://github.com/Dafenghh/Training_Summary/blob/master/code/CCPC_Wannafly_Camp_2019/day2/A_Zayin.cpp
