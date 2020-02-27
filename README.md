@@ -1,4 +1,4 @@
-# Training_Summary
+# 训练记录
 
 ## 队伍信息
 ### 队名
