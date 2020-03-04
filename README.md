@@ -8,7 +8,7 @@ SYSU_unhindered(无人之境）
 ### 成员
 
 [kqp](https://codeforces.com/profile/kqp)
-[purewhite](https://codeforces.com/profile/Purewhite)
+[PureWhite](https://codeforces.com/profile/PureWhite)
 [Zayin](https://codeforces.com/profile/Zayin)
 
 
