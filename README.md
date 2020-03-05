@@ -4,6 +4,7 @@
 ### 队名
 
 SYSU_unhindered(无人之境）
+![motto](https://github.com/ZayinLoveZiyin/XCPC/blob/master/motto.jpg)
 
 ### 成员
 
