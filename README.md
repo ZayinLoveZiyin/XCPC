@@ -8,9 +8,9 @@ SYSU_unhindered(无人之境）
 
 ### 成员
 
-[kqp](https://codeforces.com/profile/kqp)
-[PureWhite](https://codeforces.com/profile/PureWhite)
-[Zayin](https://codeforces.com/profile/Zayin)
+[kqp](https://codeforces.com/profile/kqp):19925961874
+[PureWhite](https://codeforces.com/profile/PureWhite):15817062530
+[Zayin](https://codeforces.com/profile/Zayin):18319392399
 
 
 ## 训练日程
@@ -76,7 +76,7 @@ O代表赛后AC
 | 20/03/24 | opentrain1537  | √    |      |      | √    | √    | √    |      | √    | O    | O    | √    | -    | -    | -    |
 | 20/03/25 | gym102354      | ·    | √    | √    |      | √    |      | √    |      | √    | -    | -    | -    | -    | -    |
 | 20/03/26 | gym102439      | √    | √    | O    |      | √    | √    | √    | √    | √    | √    | √    | √    | -    | -    |
-| 20/03/27 | gym102441      | √    |      | O    | √    | √    | √    |      | √    | √    | O    |      | -    | -    | -    |
+| 20/03/27 | gym102441      | √    |      | O    | √    | √    | √    | O    | √    | √    | O    |      | -    | -    | -    |
 | 20/03/28 | gym102396      | √    | √    | √    |      | √    | √    | √    | √    | √    | √    | √    | -    | -    | -    |
 | 20/03/30 | gym102136      |      | √    | √    | O    | √    | √    | √    | √    | √    | √    |      | -    | -    | -    |
 | 20/03/31 | gym102135      | √    | √    | √    | √    | √    | √    | √    | √    | √    | √    | √    | -    | -    | -    |
