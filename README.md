@@ -8,11 +8,11 @@ SYSU_unhindered(无人之境）
 
 ### 成员
 
-[kqp](https://codeforces.com/profile/kqp):19925961874
-
-[PureWhite](https://codeforces.com/profile/PureWhite):15817062530
-
-[Zayin](https://codeforces.com/profile/Zayin):18319392399
+| id                                                    | phone       | mail                      |
+| ----------------------------------------------------- | ----------- | ------------------------- |
+| [kqp](https://codeforces.com/profile/kqp)             | 19925961874 | kuangqp1217@qq.com        |
+| [PureWhite](https://codeforces.com/profile/PureWhite) | 15817062530 | dengmy6@mail2.sysu.edu.cn |
+| [Zayin](https://codeforces.com/profile/Zayin)         | 18319392399 | xielh28@mail2.sysu.edu.cn |
 
 
 ## 训练日程
