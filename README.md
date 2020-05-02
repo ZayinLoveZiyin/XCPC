@@ -10,7 +10,7 @@ SYSU_unhindered(无人之境）
 
 | id                                                    | stu id   | phone       | mail                      |
 | ----------------------------------------------------- | -------- | ----------- | ------------------------- |
-| [kqp](https://codeforces.com/profile/kqp)             |          | 19925961874 | kuangqp1217@qq.com        |
+| [kqp](https://codeforces.com/profile/kqp)             | 18340083 | 19925961874 | kuangqp1217@qq.com        |
 | [PureWhite](https://codeforces.com/profile/PureWhite) | 18340034 | 15817062530 | dengmy6@mail2.sysu.edu.cn |
 | [Zayin](https://codeforces.com/profile/Zayin)         | 18340182 | 18319392399 | xielh28@mail2.sysu.edu.cn |
 
@@ -38,7 +38,7 @@ O 代表赛后AC
 | 20/04/23 | mw-pf2020 day6 | √    | O    |      | √    | √    |      | √    |      |      | √    | √    | √    |      | -    |
 | 20/04/22 | mw-pf2020 day5 | √    |      | √    |      |      | √    | √    | O    |      | √    |      | -    | -    | -    |
 | 20/04/20 | mw-pf2020 day3 |      | √    | O    |      |      | √    |      |      | O    | √    | O    | O    |      | -    |
-| 20/04/19 | mw-pf2020 day2 | O    |      | O |      | √    | √    | O | √    | O    |      | O |      | -    | -    |
+| 20/04/19 | mw-pf2020 day2 | O    |      | O    | O    | √    | √    | O | √    | O    |      | O |      | -    | -    |
 | 20/04/18 | mw-pf2020 day1 | √    | √    | √    | √    | O    | √    | √    | O    | √    | √    | O    | ×    |      | -    |
 | 20/04/17 | gym101879      | √    | √    | √    | √    | √    | O    | √    | √    | √    | √    | √    | -    | -    | -    |
 | 20/04/15 | gym102299      | √    | √    | √    | √    |      | √    | √    | √    | √    | √    | √    | -    | -    | -    |
