@@ -33,7 +33,7 @@ O 代表赛后AC
 
 | date     | contest        | A    | B    | C    | D    | E    | F    | G    | H    | I    | J    | K    | L    | M    | N    |
 | -------- | -------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| 20/07/26 | now-multi2020-day2 |  | √ | √ | √ | √ | √ | √ |  | √ | √ | O | - | - | - |
+| 20/07/26 | [now-multi2020-day2][5] |  | √ | √ | √ | √ | √ | √ |  | √ | √ | O | - | - | - |
 | 20/07/13 | now-multi2020 day1 | √ | O |  | √ | O | √ | O | √ | √ | √ | - | - | - | - |
 | 20/06/13 | [cf1366,edu89][4](3v) | √ | √ | √ | √ | √ |  | √ | - | - | - | - | - | - | - |
 | 20/06/07 | [金马五校][3](3v) | √ | √ | √ | √ | · | √ | √ | · |  | O | √ | - | - | - |
@@ -116,3 +116,4 @@ O 代表赛后AC
 [2]:https://codeforces.ml/gym/102606
 [3]:https://ac.nowcoder.com/acm/contest/5891#question
 [4]:https://codeforces.com/contest/1366
+[5]:https://github.com/ZayinLoveZiyin/XCPC/blob/master/now-multi2020%20day2
