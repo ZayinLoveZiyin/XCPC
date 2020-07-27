@@ -117,5 +117,5 @@ O 代表赛后AC
 [2]:https://codeforces.ml/gym/102606
 [3]:https://ac.nowcoder.com/acm/contest/5891#question
 [4]:https://codeforces.com/contest/1366
-[5]:https://github.com/ZayinLoveZiyin/XCPC/blob/master/now-multi2020%20day2
-[6]:https://github.com/ZayinLoveZiyin/XCPC/blob/master/now-multi2020%20day3
+[5]:https://github.com/ZayinLoveZiyin/XCPC/blob/master/now-multi2020%20day2.md
+[6]:https://github.com/ZayinLoveZiyin/XCPC/blob/master/now-multi2020%20day3.md
