@@ -118,4 +118,4 @@ O 代表赛后AC
 [3]:https://ac.nowcoder.com/acm/contest/5891#question
 [4]:https://codeforces.com/contest/1366
 [5]:https://github.com/ZayinLoveZiyin/XCPC/blob/master/now-multi2020%20day2
-[5]:https://github.com/ZayinLoveZiyin/XCPC/blob/master/now-multi2020%20day3
+[6]:https://github.com/ZayinLoveZiyin/XCPC/blob/master/now-multi2020%20day3
