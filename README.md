@@ -34,7 +34,7 @@ O 代表赛后AC
 | date     | contest        | A    | B    | C    | D    | E    | F    | G    | H    | I    | J    | K    | L    | M    | N    |
 | -------- | -------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
 | 20/08/03 | now-multi2020-day8      | √ | O | O | O    | √    |      | √    |      | √    |      | √    | -    | -    | -    |
-| 20/08/01 | now-multi2020-day7      | √ | √ | √ | √    | O    |      | O    | √    | √    | √    | -    | -    | -    | -    |
+| 20/08/01 | [now-multi2020-day7][7]      | √ | √ | √ | √    | O    |      | O    | √    | √    | √    | -    | -    | -    | -    |
 | 20/07/27 | [now-multi2020-day3][6] | √ | √ | √ | √    | √    | √    | √    | √    |      |      |      | √    | -    | -    |
 | 20/07/26 | [now-multi2020-day2][5] |   | √ | √ | √    | √    | √    | √    | O    | √    | √    | O    | -    | -    | -    |
 | 20/07/13 | now-multi2020 day1      | √ | O |   | √    | O    | √    | O    | √    | √    | √    | -    | -    | -    | -    |
@@ -121,3 +121,4 @@ O 代表赛后AC
 [4]:https://codeforces.com/contest/1366
 [5]:https://github.com/ZayinLoveZiyin/XCPC/blob/master/now-multi2020%20day2.md
 [6]:https://github.com/ZayinLoveZiyin/XCPC/blob/master/now-multi2020%20day3.md
+[7]:https://github.com/ZayinLoveZiyin/XCPC/blob/master/now-multi2020%20day7.md
