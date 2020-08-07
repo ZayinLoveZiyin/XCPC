@@ -22,6 +22,10 @@ Z for Zayin
 
 #### E by K
 
+题意：给定一棵目标树和若干模板树，每种模板树有个单价。用模板树去拼出目标树，求最小代价。
+
+https://blog.csdn.net/rzO_KQP_Orz/article/details/107857673
+
 #### F
 
 #### G by K
