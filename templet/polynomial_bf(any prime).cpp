@@ -136,7 +136,6 @@ namespace polynomial  {
             for (int i=0;i<a.size();++i)
                 for (int j=0;j<b.size();++j)
                     add(ans[i+j],a[i]*b[j]);
-            return ans.normalize();
         } else  {
             static const int w=1000;
             static FFT::comp ta[3][maxn],tb[3][maxn],tc[maxn];
@@ -164,8 +163,6 @@ namespace polynomial  {
                     for (int i=0;i<ans.size();++i)
                         add(ans[i],(LL)(tc[i].x+0.5)*cw);
                 }
-
-            return ans.normalize();
         }
         return ans.normalize();
     }
