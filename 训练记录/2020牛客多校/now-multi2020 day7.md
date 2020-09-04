@@ -12,6 +12,8 @@ Z for Zayin
 
 #### B by P
 
+类 GCD
+
 #### C by Z
 
 #### D by K
@@ -39,3 +41,5 @@ https://blog.csdn.net/rzO_KQP_Orz/article/details/107857673
 #### I by Z
 
 #### J by P,Z
+
+简单题

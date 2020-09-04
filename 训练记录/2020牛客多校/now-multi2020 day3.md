@@ -6,11 +6,15 @@ Z for Zayin
 
 #### A by P
 
+签到题
+
 #### B by Z
 
 签到题
 
 #### C by P
+
+用掌根和相邻的两条边判断方向。
 
 #### D by Z
 
