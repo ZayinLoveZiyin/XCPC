@@ -14,6 +14,12 @@ SYSU_unhindered(无人之境）
 | [PureWhite](https://codeforces.com/profile/PureWhite) | 18340034 | 15817062530 | dengmy6@mail2.sysu.edu.cn |
 | [Zayin](https://codeforces.com/profile/Zayin)         | 18340182 | 18319392399 | xielh28@mail2.sysu.edu.cn |
 
+## 战绩
+
+| date     | contest                 | achievement(rk/school rk)    |
+| -------- | ----------------------- | ---------------------------- |
+| 20/10/15 | ccpc2020-weihai         | rk 6/sck 5                   |
+
 
 ## 训练日程
 
@@ -33,7 +39,7 @@ O 代表赛后AC
 
 | date     | contest                 | A    | B    | C    | D    | E    | F    | G    | H    | I    | J    | K    | L    | M    | N    |
 | -------- | ----------------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| 20/10/17 | gym102770               | √    | √    | √    |      | √    | √    |      | O    | √    |      | √    | O    | -    | -    |
+| 20/10/17 | gym102770               | √    | √    | √    |      | √    | √    | O    | O    | √    |      | √    | O    | -    | -    |
 | 20/10/25 | ccpc2020-weihai         | √    | √    | √    | √    |      |      | √    | √    |      | √    |      | √    | -    | -    |
 | 20/10/24 | hdu-multi2020-day6      | √    | √    | √    |      | √    | √    | √    |      | √    | √    | ·    | -    | -    | -    |
 | 20/10/13 | gym102201               | √    |      | O    |      | √    | √    |      | O    | √    | O    | -    | -    | -    | -    |
