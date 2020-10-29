@@ -18,7 +18,7 @@ SYSU_unhindered(无人之境）
 
 | date     | contest                 | achievement(rk/school rk)    |
 | -------- | ----------------------- | ---------------------------- |
-| 20/10/15 | ccpc2020-weihai         | rk 6/sck 5                   |
+| 20/10/25 | ccpc2020-weihai         | rk 6/sck 5                   |
 
 
 ## 训练日程
