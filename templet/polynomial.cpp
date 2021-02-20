@@ -6,6 +6,7 @@ typedef long long LL;
 void add(LL &a,LL b)    {   a=(a+b)%modu;   }
 void sub(LL &a,LL b)    {   a=(a-b%modu+modu)%modu;  }
 void mul(LL &a,LL b)    {   a=a*b%modu; }
+LL sgn(LL a)    {   return (a&1)?modu-1:1;  }
 
 LL pw(LL a,LL k=modu-2)   {
     LL ans=1;
@@ -30,14 +31,29 @@ namespace polynomial  {
         int deg() const  {   return size()-1;    }
         void init(int n) {
             resize(n);
-            for (LL &x:*this)
+            for (auto &x:*this)
                 cin>>x;
+            normalize();
+        }
+
+        poly operator - () const  {
+            poly ans=*this;
+            for (auto &x:ans)
+                x=(modu-x)%modu;
+            return ans;
+        }
+
+        LL operator () (const LL& x) const  {
+            LL ans=0;
+            for (int i=size()-1;i>=0;--i)
+                ans=(ans*x+at(i))%modu;
+            return ans;
         }
     };
     
     ostream& operator << (ostream& os,poly a)   {
         os<<"("; 
-        for (LL x:a) os<<x<<" "; 
+        for (auto x:a) os<<x<<" "; 
         os<<")";
         return os;
     }
@@ -45,7 +61,7 @@ namespace polynomial  {
         int n;
         is>>n;
         a.resize(n);
-        for (LL &x:a) is>>x;
+        for (auto &x:a) is>>x;
         return is;
     }
 
@@ -53,7 +69,7 @@ namespace polynomial  {
         #define maxn 1000050
         int N,rev[maxn];
         LL I,w[maxn];
-        void init(int n) {
+        inline void init(int n) {
             for (N=1;N<n;N<<=1); I=pw(N);
             assert(N<maxn);
 
@@ -65,7 +81,7 @@ namespace polynomial  {
             for (int i=2;i<N;++i)
                 w[i]=w[i-1]*w[1]%modu;
         }
-        void DFT(LL *A)   {
+        inline void DFT(LL *A)   {
             for (int i=0;i<N;++i)
                 if (i<rev[i])
                     swap(A[i],A[rev[i]]);
@@ -79,7 +95,7 @@ namespace polynomial  {
                     }
             }
         }
-        void IDFT(LL *A)    {
+        inline void IDFT(LL *A)    {
             DFT(A);
             reverse(A+1,A+N);
             for (int i=0;i<N;++i)
@@ -93,7 +109,7 @@ namespace polynomial  {
             if (i<a.size()) add(ans[i],a[i]);
             if (i<b.size()) add(ans[i],b[i]);
         }
-        return ans;
+        return ans.normalize();
     }
     inline poly operator - (const poly& a,const poly& b)   {
         poly ans(max(a.size(),b.size()));
@@ -101,10 +117,10 @@ namespace polynomial  {
             if (i<a.size()) add(ans[i],a[i]);
             if (i<b.size()) sub(ans[i],b[i]);
         }
-        return ans;
+        return ans.normalize();
     }
 
-    const int lim=100;
+    const int lim=300;
     inline poly operator * (poly a,poly b)   {
         if (a.size()<lim&&b.size()<lim) {
             poly ans(a.size()+b.size());
@@ -124,7 +140,7 @@ namespace polynomial  {
     }
 
     inline poly operator * (poly a,LL y)    {
-        for (LL &x:a) mul(x,y);
+        for (auto &x:a) mul(x,y);
         return a;
     }
     inline poly operator / (poly a,LL y)    {
@@ -153,11 +169,16 @@ namespace polynomial  {
         b.resize(len);
         poly ans=a*(~b)%len;
         reverse(ans.begin(),ans.end());
-        return ans;
+        return ans.normalize();
     }
     
     inline poly operator % (poly a,poly b)  {
-        return (a-a/b*b)%(b.size()-1);
+        return ((a-a/b*b)%b.deg()).normalize();
+    }
+    
+    inline pair<poly,poly> divmod(poly a,poly b)   {
+        poly d=a/b;
+        return make_pair(d,((a-d*b)%b.deg()).normalize());
     }
 
     inline poly sqrt(poly a) {//a0=1,2*len space
@@ -213,7 +234,162 @@ namespace polynomial  {
         for (int i=k;i<a.size();++i)
             ans[i-k]=a[i];
         return ans;
-    } 
+    }
+
+    inline vector<LL> evaluate(const poly& p,const vector<LL>& x)   {
+        function<poly(int,int)> multi=[&](int l,int r)->poly   {
+            if (l==r) return poly{modu-x[l],1};
+            int mid=(l+r)>>1;
+            return multi(l,mid)*multi(mid+1,r);
+        };
+
+        vector<LL> y(x.size());
+        function<void(const poly&,int,int)> calc=[&](const poly& p,int l,int r)   {
+            if (r-l+1<=lim)   
+                for (int i=l;i<=r;++i)
+                    y[i]=p(x[i]);
+            else    {
+                int mid=(l+r)>>1;
+                poly L=multi(l,mid),R=multi(mid+1,r);
+                calc(p%L,l,mid),calc(p%R,mid+1,r);
+            }
+        };
+        calc(p,0,x.size()-1);
+        return y;
+    }
+    
+    inline poly interpolate(const vector<LL>& x,const vector<LL>& y)   {
+        function<poly(int,int)> multi=[&](int l,int r)->poly   {
+            if (l==r) return poly{-x[l],1};
+            int mid=(l+r)>>1;
+            return multi(l,mid)*multi(mid+1,r);
+        };
+        poly g=multi(0,x.size()-1);
+
+        auto c=evaluate(d(g),x);
+        for (int i=0;i<x.size();++i)
+            c[i]=y[i]*pw(c[i])%modu;
+
+        function<poly(int,int)> calc=[&](int l,int r)->poly   {
+            if (r-l+1<=lim) {
+                poly ans0{1},ans1;
+                for (int i=l;i<=r;++i)  {
+                    poly p=poly{modu-x[i],1};
+                    ans1=ans1*p+ans0*c[i];
+                    ans0=ans0*p;
+                }
+                return ans1;
+            }   else    {
+                int mid=(l+r)>>1;
+                poly L=multi(l,mid),R=multi(mid+1,r);
+                return calc(l,mid)*R+calc(mid+1,r)*L;
+            }
+        };
+        return calc(0,x.size()-1);
+    }
+
+    //gcd
+
+    struct polyMat  {
+        poly a0,a1,b0,b1;
+        /* a0 a1
+           b1 b1 */
+        polyMat(const poly& a0={},const poly& a1={},const poly& b0={},const poly& b1={}):
+            a0(a0),a1(a1),b0(b0),b1(b1) {}
+        bool operator == (const polyMat& M) const   {
+            return a0==M.a0 && a1==M.a1 && b0==M.b0 && b1==M.b1;
+        }
+    };
+
+    const polyMat swapMat=polyMat({},{1},{1},{});
+    const polyMat identityMat=polyMat({1},{},{},{1});
+
+    struct polyVec  {
+        poly a,b;
+        polyVec(const poly& a={},const poly& b={}):a(a),b(b)  {}
+    };
+
+    ostream& operator << (ostream& os,const polyVec& V)   {
+        os<<"V[ "<<V.a<<", "<<V.b<<" ]";
+        return os;
+    }
+    ostream& operator << (ostream& os,const polyMat& M)   {
+        os<<"M[ "<<M.a0<<", "<<M.a1<<endl\
+          <<"   "<<M.b0<<", "<<M.b1<<" ]";
+        return os;
+    }
+
+    polyMat operator * (const polyMat& A,const polyMat& B)  {
+        return polyMat( A.a0*B.a0+A.a1*B.b0,    A.a0*B.a1+A.a1*B.b1,
+                        A.b0*B.a0+A.b1*B.b0,    A.b0*B.a1+A.b1*B.b1);
+    }
+    polyVec operator * (const polyMat& M,const polyVec& V)  {
+        return polyVec( M.a0*V.a+M.a1*V.b,  M.b0*V.a+M.b1*V.b);
+    }
+
+    inline polyMat hgcd(const poly& a,const poly& b)   {
+        assert(a.size()>b.size());
+        int m=(a.deg()+1)>>1,n=b.deg();
+        if (n<m) return identityMat;
+
+        polyMat R=hgcd(a>>m,b>>m);
+        polyVec V=R*polyVec(a,b);
+        if (V.b.deg()<m) return R;
+        
+        auto q=divmod(V.a,V.b);
+        polyMat Q({},{1},{1},-q.first);
+        int k=(m<<1)-V.b.deg();
+        return hgcd(V.b>>k,q.second>>k)*Q*R;
+    }
+
+    inline polyMat cogcd(const poly& a,const poly& b)  {
+        if (!a.size()) return swapMat;
+        if (!b.size()) return identityMat;
+
+        if (a.size()<=b.size()) {
+            auto q=divmod(b,a);
+            polyMat Q({1},{},-q.first,{1});
+            return cogcd(a,q.second)*Q;
+        } else  {
+            polyMat M=hgcd(a,b);
+            polyVec V=M*polyVec(a,b);
+            return cogcd(V.b,V.a)*swapMat*M;
+        }
+    };
+
+    inline poly gcd(const poly& a,const poly& b)    {
+        polyMat M=cogcd(a,b);
+        polyVec V=M*polyVec(a,b);
+        assert(V.b==poly{});
+        return V.a;
+    }    
+    inline poly exgcd(const poly& a,const poly& b,poly& x,poly& y)    {
+        polyMat M=cogcd(a,b);
+        polyVec V=M*polyVec(a,b);
+        assert(V.b==poly{});
+        tie(x,y)=make_pair(M.a0,M.a1);
+        return V.a;
+    }
+
+    //resultant:
+    //let A=an*\prod[i=1...n](x-ai)
+    //let B=bm*\prod[i=1...n](x-bj)
+    /*R(A,B)=bm^n*\prod A(bj)
+            =bm^n*an^m*\prod_{ij}(bj-ai)
+            =(-1)^(nm)*an^m*\prod B(ai)
+    */
+    /* propertiy
+        1. R(A,B)=(-1)^(nm)*R(B,A)
+        2. R(A,B)=an^m*bm^n if n==0 or m==0
+        3. R(A-CB,B)=R(A,B) if bm==1   -> R(A,B)=R(A%B,B)
+    */
+    inline LL resultant(const poly& a,const poly& b)    {
+        if (!a.size()||!b.size()) return 0;
+        if (a.size()==1||b.size()==1)   
+            return pw(a.back(),b.deg())*pw(b.back(),a.deg())%modu;
+        poly t=b/b.back();
+        return sgn(a.deg()*b.deg())*resultant(t,a%t)%modu*pw(b.back(),a.deg())%modu;
+    }
 }
 
 using namespace polynomial;
@@ -232,4 +408,6 @@ int main()  {
     cout<<ln(a)<<endl;
     cout<<exp(a)<<endl;
     cout<<(a^k)<<endl;
+    cout<<gcd(a,b)<<endl;
+    cout<<resultant(a,b)<<endl;
 }
