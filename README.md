@@ -8,11 +8,11 @@ SYSU_unhindered(无人之境）
 
 ### 成员
 
-| id                                                    | stu id   | card id            | phone       | mail                      |
-| ----------------------------------------------------- | -------- | ------------------ | ----------- | ------------------------- |
-| [kqp](https://codeforces.com/profile/kqp)             | 18340083 | 44200019991217157X | 19925961874 | kuangqp1217@qq.com        |
-| [PureWhite](https://codeforces.com/profile/PureWhite) | 18340034 | 440106200006074038 | 15817062530 | dengmy6@mail2.sysu.edu.cn |
-| [Zayin](https://codeforces.com/profile/Zayin)         | 18340182 | 441284200006021812 | 18319392399 | xielh28@mail2.sysu.edu.cn |
+| id                                                    | stu id   | mail                      |
+| ----------------------------------------------------- | -------- | ------------------------- |
+| [kqp](https://codeforces.com/profile/kqp)             | 18340083 | kuangqp1217@qq.com        |
+| [PureWhite](https://codeforces.com/profile/PureWhite) | 18340034 | dengmy6@mail2.sysu.edu.cn |
+| [Zayin](https://codeforces.com/profile/Zayin)         | 18340182 | xielh28@mail2.sysu.edu.cn |
 
 ## 战绩
 
