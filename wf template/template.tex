@@ -1,0 +1,1375 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage[top=2cm, bottom=1.5cm, left=2cm, right=2cm]{geometry}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{color}
+\usepackage{diagbox}
+\usepackage{graphicx}
+\usepackage{gensymb}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\lstset{
+ language=C++,
+ basicstyle=\footnotesize\ttfamily,
+ columns=fixed,
+ numbers=left,                                        % 在左侧显示行号
+ keywordstyle=\color{blue},                           % 设定关键字颜色
+ commentstyle=\it\color[RGB]{0,96,96},                % 设置代码注释的格式
+ stringstyle=\slshape\color[RGB]{128,0,0},            % 设置字符串格式
+ showstringspaces=false,                              % 显示字符串中的空格
+ escapeinside=``,                                     % 显示中文
+ extendedchars=false                                  % 解决跨页问题
+}
+
+\title{World Final Template}
+\author{Mingyu Deng, Qipeng Kuang, Lihui Xie \\ Sun Yat-Sen University}
+\date{}
+
+\pagestyle{fancy}
+\fancyhead[L]{SYSU\_Unhindered, Sun Yat-Sen University}
+\fancyhead[R]{\thepage}
+
+\begin{document}
+\maketitle
+
+\section{Polynomials}
+
+\begin{lstlisting}
+namespace polynomial {
+
+// dft.h
+template <typename T>
+class dft {
+ public:
+  static const bool use_fast_trans = true;
+  static void trans(std::vector<T>& p) {
+    assert(__builtin_popcount(p.size()) == 1);
+    if constexpr (use_fast_trans) {
+      dif(p);
+    } else {
+      bit_reverse(p);
+      dit(p);
+    }
+  }
+
+  static void inv_trans(std::vector<T>& p) {
+    assert(__builtin_popcount(p.size()) == 1);
+    if constexpr (use_fast_trans) {
+      dit(p);
+    } else {
+      trans(p);
+    }
+    reverse(p.begin() + 1, p.end());
+    T inv = T(p.size()).inv();
+    for (T& x : p) x *= inv;
+  }
+
+  // should call dit after dif
+  static void dit(std::vector<T>& p) {
+    for (int len = 1; len < p.size(); len <<= 1) {
+      auto sub_w = get_subw(len * 2);
+      for (auto sub_p = p.begin(); sub_p != p.end(); sub_p += 2 * len)
+        for (int i = 0; i < len; ++i) {
+          T u = sub_p[i], v = sub_p[i + len] * sub_w[i];
+          sub_p[i] = u + v;
+          sub_p[i + len] = u - v;
+        }
+    }
+  }
+
+  static void dif(std::vector<T>& p) {
+    for (int len = p.size() / 2; len >= 1; len >>= 1) {
+      auto sub_w = get_subw(len * 2);
+      for (auto sub_p = p.begin(); sub_p != p.end(); sub_p += 2 * len)
+        for (int i = 0; i < len; ++i) {
+          T _sub_pi = sub_p[i];
+          sub_p[i] += sub_p[i + len];
+          sub_p[i + len] = (_sub_pi - sub_p[i + len]) * sub_w[i];
+        }
+    }
+  }
+
+ private:
+  typename std::vector<T>::iterator static get_subw(int len) {
+    static std::vector<T> w = {0, 1};
+    static const T primitive_root = T::primitive_root();
+    while (w.size() <= len) {
+      T e[] = {1, primitive_root.pow((T::modulus() - 1) / w.size())};
+      w.resize(w.size() * 2);
+      for (int i = w.size() / 2; i < w.size(); ++i) w[i] = w[i / 2] * e[i & 1];
+    }
+    return w.begin() + len;
+  }
+};
+
+// poly.h
+template <typename T>
+class poly : public std::vector<T> {
+ public:
+  using std::vector<T>::vector;
+
+  poly(std::string s) {
+    for (int i = 0; i < s.size();) {
+      auto scan_num = [&]() -> long long {
+        int sgn = 1;
+        if (s[i] == '-') sgn = -1, ++i;
+        if (s[i] == '+') sgn = 1, ++i;
+        if (i == s.size() || !std::isdigit(s[i])) return sgn;
+        long long num = 0;
+        while (i < s.size() && std::isdigit(s[i]))
+          num = num * 10 + s[i++] - '0';
+        return sgn * num;
+      };
+      auto add_item = [&](size_t exponent, T coeff) {
+        if (exponent >= this->size()) this->resize(exponent + 1);
+        this->at(exponent) = coeff;
+      };
+      T coeff = scan_num();
+      if (i == s.size() || s[i] != 'x')
+        add_item(0, coeff);
+      else {
+        size_t exponent = 1;
+        if (s[++i] == '^') {
+          ++i;
+          exponent = scan_num();
+        }
+        add_item(exponent, coeff);
+      }
+    }
+  }
+
+  int deg() const { return this->size() - 1; }
+  poly operator-() const {
+    poly ans = *this;
+    for (auto& x : ans) x = -x;
+    return ans;
+  }
+  T operator()(const T& x) const {
+    T ans = 0;
+    for (int i = this->size() - 1; i >= 0; --i) ans = ans * x + this->at(i);
+    return ans;
+  }
+  T operator[](int idx) const {
+    if (0 <= idx && idx < this->size()) return this->at(idx);
+    return 0;
+  }
+  T& operator[](int idx) {
+    if (idx >= this->size()) this->resize(idx + 1);
+    return this->at(idx);
+  }
+
+  poly rev() const {
+    poly res(*this);
+    std::reverse(res.begin(), res.end());
+    return res;
+  }
+
+  poly mulxk(size_t k) const {
+    poly res = *this;
+    res.insert(res.begin(), k, 0);
+    return res;
+  }
+  poly divxk(size_t k) const {
+    if (this->size() <= k) return {};
+    return poly(this->begin() + k, this->end());
+  }
+  poly modxk(size_t k) const {
+    k = std::min(k, this->size());
+    return poly(this->begin(), this->begin() + k);
+  }
+
+  poly& operator*=(poly p) {
+    if (this->empty() || p.empty()) return *this = {};
+    constexpr int small_size = 128;
+    if (this->size() < small_size || p.size() < small_size) {
+      poly<T> t(this->size() + p.size() - 1);
+      for (int i = 0; i < this->size(); i++)
+        for (int j = 0; j < p.size(); j++) t[i + j] += this->at(i) * p[j];
+      return *this = t;
+    }
+    int len = 1 << (std::__lg(this->deg() + p.deg()) + 1);
+    this->resize(len);
+    p.resize(len);
+    dft<T>::trans(*this);
+    dft<T>::trans(p);
+    for (int i = 0; i < len; ++i) this->at(i) *= p[i];
+    dft<T>::inv_trans(*this);
+    return this->normalize();
+  }
+
+  poly& operator+=(const poly& p) {
+    this->resize(std::max(this->size(), p.size()));
+    for (int i = 0; i < this->size(); ++i) this->at(i) += p[i];
+    return this->normalize();
+  }
+  poly& operator-=(const poly& p) {
+    this->resize(std::max(this->size(), p.size()));
+    for (int i = 0; i < this->size(); ++i) this->at(i) -= p[i];
+    return this->normalize();
+  }
+  poly& operator/=(const poly& p) {
+    if (this->size() < p.size()) return *this = {};
+    int len = this->size() - p.size() + 1;
+    return *this = (this->rev().modxk(len) * p.rev().inv(len))
+                       .modxk(len)
+                       .rev()
+                       .normalize();
+  }
+  poly& operator%=(const poly& p) {
+    return *this = (*this - (*this / p) * p).normalize();
+  }
+  poly& operator*=(const T& x) {
+    for (int i = 0; i < this->size(); ++i) this->at(i) *= x;
+    return *this;
+  }
+  poly& operator/=(const T& x) { return *this *= x.inv(); }
+  poly operator*(const poly& p) const { return poly(*this) *= p; }
+  poly operator+(const poly& p) const { return poly(*this) += p; }
+  poly operator-(const poly& p) const { return poly(*this) -= p; }
+  poly operator/(const poly& p) const { return poly(*this) /= p; }
+  poly operator%(const poly& p) const { return poly(*this) %= p; }
+  poly operator*(const T& x) const { return poly(*this) *= x; }
+  poly operator/(const T& x) const { return poly(*this) /= x; }
+
+  // (quotient, remainder)
+  std::pair<poly, poly> divmod(const poly& p) const {
+    poly d = *this / p;
+    return std::make_pair(d, (*this - d * p).normalize());
+  }
+
+  poly deriv() const {
+    if (this->empty()) return {};
+    poly res(this->size() - 1);
+    for (int i = 0; i < this->size() - 1; ++i) {
+      res[i] = this->at(i + 1) * (i + 1);
+    }
+    return res;
+  }
+  poly integr(T c = 0) const {
+    poly res(this->size() + 1);
+    for (int i = 0; i < this->size(); ++i) {
+      res[i + 1] = this->at(i) / (i + 1);
+    }
+    res[0] = c;
+    return res;
+  }
+
+  // mod x^k
+  poly inv(int k = -1) const {
+    if (!~k) k = this->size();
+    poly res = {this->front().inv()};
+    for (int len = 2; len < k * 2; len <<= 1) {
+      res = (res * (poly{2} - this->modxk(len) * res)).modxk(len);
+    }
+    return res.modxk(k);
+  }
+
+  // mod x^k
+  poly sqrt(int k = -1) const {
+    if (!~k) k = this->size();
+    poly res = {this->at(0).sqrt()};
+    for (int len = 2; len < k * 2; len <<= 1) {
+      res = (res + (this->modxk(len) * res.inv(len)).modxk(len)) / 2;
+    }
+    return res.modxk(k);
+  }
+
+  // mod x^k, a0=1 should hold
+  poly log(int k = -1) const {
+    assert(this->at(0) == 1);
+    if (!~k) k = this->size();
+    return (this->deriv() * this->inv(k)).integr().modxk(k);
+  }
+  // mod x^k, a0=0 should hold
+  poly exp(int k = -1) const {
+    assert(this->at(0) == 0);
+    if (!~k) k = this->size();
+    poly res = {1};
+    for (int len = 2; len < k * 2; len <<= 1) {
+      res = (res * (poly{1} - res.log(len) + this->modxk(len))).modxk(len);
+    }
+    return res.modxk(k);
+  }
+  // p^c mod x^k
+  poly pow(int c, int k = -1) const {
+    if (!~k) k = this->size();
+    int i = 0;
+    while (i < this->size() && !this->at(i)) ++i;
+    if (i == this->size() || 1LL * i * c >= k) return {};
+    T ai = this->at(i);
+    poly f = this->divxk(i) * ai.inv();
+    return (f.log(k - i * c) * c).exp(k - i * c).mulxk(i * c) * ai.pow(c);
+  }
+
+  // evaluate and interpolate
+  struct product_tree {
+    int l, r;
+    std::unique_ptr<product_tree> lson = nullptr, rson = nullptr;
+    poly product;
+    product_tree(int l, int r) : l(l), r(r) {}
+
+    static std::unique_ptr<product_tree> build(
+        const std::vector<T>& xs, std::function<poly(T)> get_poly) {
+      std::function<std::unique_ptr<product_tree>(int, int)> build =
+          [&](int l, int r) {
+            auto rt = std::make_unique<product_tree>(l, r);
+            if (l == r) {
+              rt->product = get_poly(xs[l]);
+            } else {
+              int mid = (l + r) >> 1;
+              rt->lson = build(l, mid);
+              rt->rson = build(mid + 1, r);
+              rt->product = rt->lson->product * rt->rson->product;
+            }
+            return rt;
+          };
+      return build(0, xs.size() - 1);
+    }
+  };
+
+  poly mulT(poly p) const {
+    if (p.empty()) return {};
+    return ((*this) * p.rev()).divxk(p.size() - 1);
+  }
+
+  std::vector<T> evaluate(std::vector<T> xs) const {
+    if (this->empty()) return std::vector<T>(xs.size());
+    std::unique_ptr<product_tree> rt = product_tree::build(xs, [&](T x) {
+      return poly{1, -x};
+    });
+    return evaluate_internal(xs, rt);
+  }
+
+  static poly interpolate(std::vector<T> xs, std::vector<T> ys) {
+    assert(xs.size() == ys.size());
+    if (xs.empty()) return {};
+    std::unique_ptr<product_tree> rt = product_tree::build(xs, [&](T x) {
+      return poly{1, -x};
+    });
+    std::vector<T> coef = rt->product.rev().deriv().evaluate_internal(xs, rt);
+    for (int i = 0; i < ys.size(); ++i) coef[i] = ys[i] * coef[i].inv();
+    std::function<poly(product_tree*)> solve = [&](product_tree* rt) {
+      if (rt->l == rt->r) {
+        return poly{coef[rt->l]};
+      } else {
+        return solve(rt->lson.get()) * rt->rson->product.rev() +
+               solve(rt->rson.get()) * rt->lson->product.rev();
+      }
+    };
+    return solve(rt.get());
+  }
+
+  // a0=0 must hold
+  poly cos(int k = -1) const {
+    assert(this->at(0) == 0);
+    if (!~k) k = this->size();
+    T i = T::root().pow((T::modulus() - 1) / 4);
+    poly x = *this * i;
+    return (x.exp(k) + (-x).exp(k)) / 2;
+  }
+
+  // a0=0 must hold
+  poly sin(int k = -1) const {
+    assert(this->at(0) == 0);
+    if (!~k) k = this->size();
+    T i = T::root().pow((T::modulus() - 1) / 4);
+    poly x = *this * i;
+    return (x.exp(k) - (-x).exp(k)) / (i * 2);
+  }
+
+  // a0=0 must hold
+  poly tan(int k = -1) const { return this->sin(k) / this->cos(k); }
+
+  poly acos(int k = -1) const {
+    const poly& x = *this;
+    return (-x.deriv() * (poly{1} - x * x).sqrt().inv()).integr();
+  };
+  poly asin(int k = -1) const {
+    const poly& x = *this;
+    return (x.deriv() * (poly{1} - x * x).sqrt().inv()).integr();
+  };
+  poly atan(int k = -1) const {
+    const poly& x = *this;
+    return (x.deriv() * (poly{1} + x * x).inv()).integr();
+  };
+
+  friend std::ostream& operator<<(std::ostream& os, poly p) {
+    os << "{";
+    for (auto x : p) os << x() << " ";
+    os << "}";
+    return os;
+  }
+
+ private:
+  poly& normalize() {
+    while (this->size() && !this->back()) this->pop_back();
+    return *this;
+  }
+
+  std::vector<T> evaluate_internal(std::vector<T>& xs,
+                                   std::unique_ptr<product_tree>& rt) const {
+    std::vector<T> res(xs.size());
+    xs.resize(std::max(xs.size(), this->size()));
+    std::function<void(product_tree*, poly)> solve = [&](product_tree* rt,
+                                                         poly p) {
+      p = p.modxk(rt->r - rt->l + 1);
+      if (rt->l == rt->r) {
+        if (rt->l < res.size()) res[rt->l] = p.front();
+      } else {
+        solve(rt->lson.get(), p.mulT(rt->rson->product));
+        solve(rt->rson.get(), p.mulT(rt->lson->product));
+      }
+    };
+    solve(rt.get(), this->mulT(rt->product.inv(xs.size())));
+    return res;
+  }
+};
+
+}  // namespace polynomial
+
+using poly = polynomial::poly<zint>;
+\end{lstlisting}
+
+\section{Strings}
+
+\begin{lstlisting}
+//***************************** Lyndon *************************
+
+namespace lyndon {
+
+std::vector<int> getfactorization(const std::string &s) {
+  std::vector<int> right_ends;
+  for (int i = 0; i < s.length();) {
+    int j = i, k = i + 1;
+    for (; k < s.length() && s[j] <= s[k]; j++, k++)
+      if (s[j] < s[k]) j = i - 1;
+    while (i <= j) i += k - j, right_ends.push_back(i);
+  }
+  return right_ends;
+}
+
+} // namespace lyndon
+
+//***************************** Pam *************************
+
+template <size_t alphabet_size = 26>
+class palindrome_automaton {
+ public:
+  struct node {
+    std::array<int, alphabet_size> to;
+    int link, len, count;
+
+    explicit node(int len = 0) : len(len), link(-1), count(0) { to.fill(0); }
+    explicit node(int len, int link) : len(len), link(link), count(0) {
+      to.fill(0);
+    }
+  };
+
+  palindrome_automaton() {
+    int even_rt = newnode(0);
+    int odd_rt = newnode(-1);
+    nodes[even_rt].link = odd_rt;
+    nodes[odd_rt].link = even_rt;
+    last = even_rt;
+  }
+
+  void extend(char c) {
+    text.push_back(c);
+    int i = text.size() - 1;
+    auto getlink = [&](int u) {
+      while (i - nodes[u].len - 1 < 0 || text[i - nodes[u].len - 1] != c) {
+        u = nodes[u].link;
+      }
+      return u;
+    };
+    int w = c - 'a';
+    int u = getlink(last);
+    if (!nodes[u].to[w]) {
+      int v = newnode(nodes[u].len + 2, nodes[getlink(nodes[u].link)].to[w]);
+      nodes[u].to[w] = v;
+    }
+    last = nodes[u].to[w];
+    ++nodes[last].count;  // should be accmulated later from fail link tree
+  }
+
+  std::string to_string() const {
+    std::ostringstream os;
+    std::function<void(int, std::string)> travel = [&](int k, std::string s) {
+      if (!k) return;
+      os << k << ": " << s << " ~ " << nodes[k].count << "\n";
+      for (int c = 0; c < alphabet_size; ++c)
+        travel(nodes[k].to[c], std::string(1, c + 'a') + s + (char)(c + 'a'));
+    };
+    for (int c = 0; c < alphabet_size; ++c)
+      travel(nodes[0].to[c], std::string(2, c + 'a'));
+    for (int c = 0; c < alphabet_size; ++c)
+      travel(nodes[1].to[c], std::string(1, c + 'a'));
+    return os.str();
+  }
+
+ private:
+  int last;
+  std::string text;
+  std::vector<node> nodes;
+
+  template <typename... Args>
+  int newnode(Args... args) {
+    int res = nodes.size();
+    nodes.push_back(node{args...});
+    return res;
+  }
+};
+
+//***************************** Suffix Array *************************
+
+template <typename Container = std::vector<int>>
+struct SuffixArray {
+  int n;
+  Container s;
+  // lc[0]=0 is meaningless
+  std::vector<int> sa, rk, lc;
+  SuffixArray(const Container& s)
+      : s(s), n(s.size()), sa(s.size()), rk(s.size()), lc(s.size()) {
+    std::iota(sa.begin(), sa.end(), 0);
+    std::sort(sa.begin(), sa.end(), [&](int a, int b) { return s[a] < s[b]; });
+    rk[sa[0]] = 0;
+    for (int i = 1; i < n; ++i)
+      rk[sa[i]] = rk[sa[i - 1]] + (s[sa[i]] != s[sa[i - 1]]);
+    std::vector<int> tmp, cnt(n);
+    tmp.reserve(n);
+    for (int k = 1; rk[sa[n - 1]] < n - 1; k *= 2) {
+      tmp.clear();
+      for (int i = 0; i < k; ++i) tmp.push_back(n - k + i);
+      for (auto i : sa)
+        if (i >= k) tmp.push_back(i - k);
+      cnt.assign(n, 0);
+      for (int i = 0; i < n; ++i) ++cnt[rk[i]];
+      for (int i = 1; i < n; ++i) cnt[i] += cnt[i - 1];
+      for (int i = n - 1; i >= 0; --i) sa[--cnt[rk[tmp[i]]]] = tmp[i];
+      std::swap(rk, tmp);
+      rk[sa[0]] = 0;
+      for (int i = 1; i < n; ++i) {
+        rk[sa[i]] = rk[sa[i - 1]];
+        if (tmp[sa[i - 1]] < tmp[sa[i]] || sa[i - 1] + k == n ||
+            tmp[sa[i - 1] + k] < tmp[sa[i] + k])
+          ++rk[sa[i]];
+      }
+    }
+    for (int i = 0, j = 0; i < n; ++i) {
+      if (!rk[i]) {
+        j = 0;
+      } else {
+        if (j) --j;
+        int k = sa[rk[i] - 1];
+        while (i + j < n && k + j < n && s[i + j] == s[k + j]) ++j;
+        lc[rk[i]] = j;
+      }
+    }
+  }
+};
+
+template <typename Container = std::vector<int>>
+class LongestCommonPrefix {
+ public:
+  LongestCommonPrefix(SuffixArray<Container>* sa) : sa(sa), st(sa->lc) {}
+
+  int lcp(int i, int j) {
+    assert(0 <= i && i <= sa->n);
+    assert(0 <= j && j <= sa->n);
+    if (i == sa->n || j == sa->n) return 0;
+    if (i == j) return sa->n - i;
+    int l = sa->rk[i], r = sa->rk[j];
+    if (l > r) std::swap(l, r);
+    return st.queryMin(l + 1, r);
+  }
+
+ private:
+  SuffixArray<Container>* sa;
+  SparseTable<int> st;
+};
+
+//***************************** SAM *************************
+
+template <size_t alphabet_size = 26>
+class suffix_automaton {
+ public:
+  struct node {
+    std::array<int, alphabet_size> to;
+    int link, len, count;
+
+    explicit node(int len = 0) : len(len), link(-1), count(0) { to.fill(-1); }
+    explicit node(int len, int link, const std::array<int, alphabet_size>& to)
+        : len(len), link(link), to(to), count(0) {}
+  };
+
+  suffix_automaton() : nodes() { newnode(); }
+
+  explicit suffix_automaton(const std::string& s) : suffix_automaton() {
+    insert(s);
+  }
+
+  void insert(const std::string& s) {
+    nodes.reserve(size() + s.size() * 2);
+    int last = 0;
+    for (int i = 0; i < s.size(); ++i) {
+      last = extend(last, s[i] - 'a');
+    }
+  }
+
+  int extend(int k, int c) {
+    if (~nodes[k].to[c] && nodes[nodes[k].to[c]].len == nodes[k].len + 1) {
+      return nodes[k].to[c];
+    }
+    int leaf = newnode(nodes[k].len + 1);
+    for (; ~k && !~nodes[k].to[c]; k = nodes[k].link) nodes[k].to[c] = leaf;
+    if (!~k) {
+      nodes[leaf].link = 0;
+    } else {
+      int p = nodes[k].to[c];
+      if (nodes[k].len + 1 == nodes[p].len) {
+        nodes[leaf].link = p;
+      } else {
+        int np = newnode(nodes[k].len + 1, nodes[p].link, nodes[p].to);
+        nodes[p].link = nodes[leaf].link = np;
+        for (; ~k && nodes[k].to[c] == p; k = nodes[k].link)
+          nodes[k].to[c] = np;
+      }
+    }
+    return leaf;
+  }
+
+  void build_ancestors() {
+    for (int i = 1; i < size(); ++i) ancestors[i] = {nodes[i].link};
+    for (int j = 1; (1 << j) < size(); ++j) {
+      for (int i = 0; i < size(); ++i)
+        if (~ancestors[i][j - 1]) {
+          ancestors[i][j] = ancestors[ancestors[i][j - 1]][j - 1];
+        } else {
+          ancestors[i][j] = -1;
+        }
+    }
+  }
+
+  std::vector<int> mark_count(const std::string& s) {
+    std::vector<int> ends;
+    int k = 0;
+    for (char c : s) {
+      k = nodes[k].to[c - 'a'];
+      assert(~k);
+      ends.push_back(k);
+      ++nodes[k].count;
+    }
+    return ends;
+  }
+
+  void addup_count() {
+    std::vector<int> ids(size()), bucket(size());
+    for (int i = 0; i < size(); ++i) ++bucket[nodes[i].len];
+    for (int i = 1; i < bucket.size(); ++i) bucket[i] += bucket[i - 1];
+    for (int i = 0; i < size(); ++i) ids[--bucket[nodes[i].len]] = i;
+    for (int i = size() - 1; i; --i)
+      nodes[nodes[ids[i]].link].count += nodes[ids[i]].count;
+  }
+
+  const node& operator[](int v) const { return nodes[v]; }
+
+  int maxlen(int v) const { return nodes[v].len; }
+
+  int minlen(int v) const { return v ? nodes[nodes[v].link].len + 1 : 0; }
+
+  int size() const { return nodes.size(); }
+
+  std::string to_string() const {
+    std::ostringstream os;
+    std::function<void(int, std::string)> travel = [&](int k, std::string s) {
+      if (!~k) return;
+      os << k << ": " << s << " ~ " << nodes[k].count << "\n";
+      for (int c = 0; c < alphabet_size; ++c)
+        travel(nodes[k].to[c], s + (char)(c + 'a'));
+    };
+    travel(0, "");
+    return os.str();
+  }
+
+ private:
+  std::vector<node> nodes;
+  std::vector<std::vector<int>> ancestors;
+
+  template <typename... Args>
+  int newnode(Args... args) {
+    int res = nodes.size();
+    nodes.push_back(node{args...});
+    return res;
+  }
+};
+
+//***************************** ACauto ************************************
+
+int go[maxtri][26],sum,count[maxtri],d[maxtri],fail[maxtri];
+void make_tri(int k) {
+    fo(i,0,nb-1) {
+        int index=sb[i]-'a';
+        if (!go[k][index]) go[k][index]=++sum;
+        k=go[k][index];
+    }
+    count[k]++;
+}
+void make_fail() {
+    int i=0, j=0;
+    fo(p,0,25) if (go[0][p]) d[++j]=go[0][p];
+    while (i++<j) {
+        int now=d[i];
+        fo(p,0,25) if (go[now][p]) {
+            int son=go[now][p];
+            fail[son]=go[fail[now]][p];
+            count[son]+=count[fail[son]];
+            d[++j]=son;
+        } else go[now][p]=go[fail[now]][p];
+    }
+}
+void find(int k) { //sa中出现了多少次sb
+    fo(i,1,n) ans+=count[k=go[k][sa[i]-'a']];
+}
+
+//***************************** manacher **********************************
+
+int f[2*maxn];
+void manacher()
+{
+    int lim=0, mid=0;
+    fo(i,1,m) // m=2*n+1
+    {
+        f[i]= (i<=lim) ?min(f[mid*2-i],lim-i+1) :1 ;
+        while (i-f[i]>0 && i+f[i]<=m && s[i-f[i]]==s[i+f[i]]) f[i]++;
+        if (i+f[i]-1>lim) lim=i+f[i]-1, mid=i;
+    }
+}
+
+//***************************** exkmp *************************************
+
+int next[maxn],ex[maxn];
+void exkmp() {
+    next[1]=nb;
+    int k=0;
+    fo(i,2,nb) {
+        int lim=k+next[k]-1, L=next[i-k+1];
+        if (i+L<=lim) next[i]=L; else {
+            next[i]=max(lim-i+1,0);
+            while (i+next[i]<=nb && sb[i+next[i]]==sb[1+next[i]]) next[i]++;
+            k=i;
+        }
+    }
+
+    k=1;
+    fo(i,1,na) {
+        int lim=k+ex[k]-1, L=next[i-k+1];
+        if (i+L<=lim) ex[i]=L; else {
+            ex[i]=max(lim-i+1,0);
+            while (i+ex[i]<=na && 1+ex[i]<=nb && sa[i+ex[i]]==sb[1+ex[i]]) ex[i]++;
+            k=i;
+        }
+    }
+}
+
+//***************************** min_representation ******************************
+
+int s[maxn];
+int min_representation(int *s,int len) {    // index from 0
+    int i=0, j=1;
+    while (i<len && j<len) {
+        int k=0;
+        for(; k<len && s[(i+k)%len]==s[(j+k)%len]; k++);
+        if (k==len) break;
+        (s[(i+k)%len]<s[(j+k)%len]) ?j+=k+1 :i+=k+1;
+        i+=(i==j);
+    }
+    return min(i,j);
+}
+\end{lstlisting}
+
+\section{Geometry}
+
+\section{Math and Number Theory}
+
+\begin{lstlisting}
+//***************************** combinatorics mod (exLucas) *************************
+
+LL p[maxp],p0,pk[maxp],num[maxp],fac[maxp];
+void Prime(LL P) {} // P = p[1]^num[1] * ... * p[p0]^num[p0] = pk[1] * ... * pk[p0]
+void Pre() {
+    fo(j,1,p0) {
+        fac[j]=1;
+        fo(i,1,pk[j]-1) if (i%p[j]) fac[j]=fac[j]*i%pk[j];
+    }
+}
+
+LL mo;
+LL Pow(LL x,LL y) {} // mod mo
+LL count(LL n,LL p) {return (n) ?(n/p+count(n/p,p)) :0 ;}
+LL Fc(LL n,LL j) {
+    if (!n) return 1;
+    LL re=Fc(n/p[j],j) *mi(fac[j],n/mo)%mo;
+    fo(i,1,n%mo) if (i%p[j]) re=re*i%mo;
+    return re;
+}
+
+LL C(LL n,LL m,LL p) {        // compute C(n+m,n). M=n+m.
+    // preprocess: Prime(P); Pre();
+    LL ans=0;
+    fo(j,1,p0) {
+        LL nump=count(M,p[j])-count(m,p[j])-count(n,p[j]);
+        LL phi=pk[j]-pk[j]/p[j];
+        mo=pk[j];
+        LL a=(nump>=num[j]) ?0 :Fc(M,j)*Pow(Fc(n,j),phi-1)%mo*Pow(Fc(m,j),phi-1)%mo*Pow(p[j],nump)%mo ;
+        (ans+=a *(P/pk[j])%P *Pow(P/pk[j],phi-1)%P)%=P;
+    }
+
+    return ans;
+}
+
+//***************************** Miller_Rabin ******************************
+
+int pr[9]={2,3,5,7,11,13,17,19,23};
+LL mul(LL x,LL y,LL mo) {
+    LL re=0;
+    for(; y; y>>=1, x=(x+x)%mo) if (y&1) re=(re+x)%mo;
+    return re;
+}
+LL Pow(LL x,LL y,LL mo) {
+    LL re=1;
+    for(; y; y>>=1, x=mul(x,x,mo)) if (y&1) re=mul(re,x,mo);
+    return re;
+}
+bool Miller_Rabin(int d,LL s,LL a,LL n) {
+    a=Pow(a,s,n);
+    if (a==1) return 1;
+    fo(i,1,d) {
+        if (a==n-1) return 1;
+        if (a==1) return 0;
+        a=mul(a,a,n);
+    }
+    return 0;
+}
+bool isprime(LL n) {
+    if (n<2) return 0;
+    fo(i,0,8) {
+        if (n==pr[i]) return 1;
+        if (n%pr[i]==0) return 0;
+    }
+    int d=0; LL s=n-1;
+    for(; !(s&1); s>>=1, d++);
+    fo(i,0,8) if (!Miller_Rabin(d,s,pr[i],n)) return 0;
+    return 1;
+}
+
+//***************************** pollard_rho *******************************
+
+inline LL ran_f(LL x,LL c,LL n) {return (mul(x,x,n)+c)%n;}
+LL pollard_rho(LL n) {
+    for(LL c=rand()*rand()%n; ; c=rand()*rand()%n) {
+        LL x=rand()*rand()%n, y=x;
+        for(LL i=0, k=1; ; i++) {
+            x=ran_f(x,c,n);
+            LL t=__gcd(abs(x-y),n);
+            if (t==n) break;
+                else if (t>1) return t;
+            if (i==k) y=x, k<<=1;
+        }
+    }
+}
+
+//***************************** similar gcd *******************************
+
+struct FGH{
+    LL f,g,h;    // f=\sum_{i=0}^n (a*i+b)/c, g=\sum_{i=0}^n i*(a*i+b)/c, h=\sum_{i=0}^n ((a*i+b)/c)^2
+};
+
+FGH calc(LL a,LL b,LL c,LL n) {
+    LL ac=a/c, bc=b/c, sum1=n*(n+1)%mo*inv2%mo, sum2=n*(n+1)%mo*(2*n+1)%mo*inv6%mo;
+    if (!a) return (FGH){(n+1)*bc%mo, sum1*bc%mo, (n+1)*bc%mo*bc%mo};
+    if (a>=c || b>=c) {
+        FGH nxt=calc(a%c,b%c,c,n);
+        LL f=(nxt.f+ac*sum1+(n+1)*bc)%mo;
+        LL g=(nxt.g+ac*sum2+sum1*bc)%mo;
+        LL h=(nxt.h+sum2*ac%mo*ac%mo+(n+1)*bc%mo*bc%mo+2*ac*nxt.g%mo+2*bc*nxt.f%mo+n*(n+1)%mo*ac%mo*bc%mo)%mo;
+        return (FGH){f,g,h};
+    } else {
+        LL m=(a*n+b)/c;
+        FGH nxt=calc(c,c-b-1,a,m-1);
+        m%=mo;
+        LL f=(m*n-nxt.f+mo)%mo;
+        LL g=((n+1)*n%mo*m-nxt.f-nxt.h+mo+mo)%mo*inv2%mo;
+        LL h=((m+1)*n%mo*m-nxt.g-nxt.g-f-nxt.f-nxt.f+mo*5)%mo;
+        return (FGH){f,g,h};
+    }
+}
+
+
+//***************************** 筛 *****************************************
+
+// f(n,k) 表示把 n 拆成 k 个数的积的方案数
+LL mw[2*maxsqrtn],g[2*maxsqrtn];
+int w0,id1[maxsqrtn],id2[maxsqrtn];
+LL min25_g(LL n) {
+    w0=0;
+    for(LL i=1, j; i<=n; i=j+1) {
+        j=n/(n/i);
+        mw[++w0]=n/i;
+        if (mw[w0]<=sqrtn) id1[mw[w0]]=w0; else id2[j]=w0;
+        g[w0]=mw[w0]-1;
+    }
+    fo(j,1,Np[sqrtn])
+        for(int i=1; i<=w0 && (LL)p[j]*p[j]<=mw[i]; i++) {
+            int id=(mw[i]/p[j]<=sqrtn) ?id1[mw[i]/p[j]] :id2[n/(mw[i]/p[j])];
+            (g[i]-=g[id]-(j-1))%=mo;
+        }
+}
+LL min25_S(LL x,int j,int k) {
+    if (x<=1 || p[j]>x) return 0;
+    int id=(x<=sqrtn) ?id1[x] :id2[n/x];
+    LL re=(g[id]-(j-1))*k;
+    for(int i=j; i<=Np[sqrtn] && (LL)p[i]*p[i]<=x; i++) {
+        LL pe=p[i];
+        for(int e=1; pe*p[i]<=x; e++, pe*=p[i])
+            (re+=min25_S(x/pe,i+1,k)*C[e+k-1][k-1]+C[e+k][k-1])%=mo;
+    }
+    return re;
+}
+\end{lstlisting}
+
+\section{Others}
+
+\begin{lstlisting}
+//***************************** dominator tree (other's) ******************
+
+const int maxn = 310000;
+const int maxm = 1050000;
+
+int n,m,s;
+int sdom[maxn],idom[maxn];
+vector<int>V[maxn];
+vector<int>g[maxn],e[maxn];
+
+int dfn[maxn],To[maxn],id,par[maxn];
+void build(int u){
+    To[dfn[u]=++id]=u;
+    for (auto v:g[u]) if (!dfn[v]) par[v]=u,build(v);
+}
+
+int fa[maxn],fas[maxn];
+void find(int x)
+{
+    if(fa[x]==x) return;
+    find(fa[x]);
+    if(dfn[sdom[fas[fa[x]]]]<dfn[sdom[fas[x]]]) fas[x]=fas[fa[x]];
+    fa[x]=fa[fa[x]];
+}
+int ans[maxn];
+
+int main(){
+    scanf("%d%d%d",&n,&m,&s);
+    int nn=n;
+    rep(i,1,m) {
+        int x,y;
+        scanf("%d%d",&x,&y);
+        e[n+i].push_back(x); e[y].push_back(n+i);
+        g[x].push_back(n+i); g[n+i].push_back(y);
+    }
+    n+=m;
+    build(s);
+    rep(i,1,n) fa[i]=i,fas[i]=i,sdom[i]=idom[i]=i;
+    per(i,id,1){
+        int x=To[i],&semi=sdom[x];
+        for(auto y:e[x]) if (dfn[y]){
+            find(y);
+            if(dfn[semi]>dfn[sdom[fas[y]]]) semi=sdom[fas[y]];
+        }
+        for(auto y:V[x]){
+            find(y);
+            if(dfn[sdom[fas[y]]]<i) idom[y]=fas[y];
+            else idom[y]=x;
+        }
+        V[semi].push_back(x);
+        for (auto y:g[x]) if (par[y]==x) fa[y]=x;
+    }
+    rep(i,1,id){
+        int x=To[i];
+        if(idom[x]!=sdom[x]) idom[x]=idom[idom[x]];
+    }
+    per(i,id,2){
+        int x=To[i];
+        if (1<=x&&x<=n&&idom[x]>nn) ans[idom[x]-nn]=1;
+    }
+    int cnt=0;
+    rep(i,1,m) if (!ans[i]) cnt++;
+    printf("%d\n",cnt);
+    rep(i,1,m) if (!ans[i]) printf("%d ",i);
+    return 0;
+}
+
+//***************************** dq_mincut *********************************
+
+int num,st[maxn];
+bool vis[maxn];
+void find(int k)
+{
+    vis[k]=1;
+    st[++num]=k;
+    for(int p=f1[k]; p; p=nxt[p]) if (!vis[go[p]]) find(go[p]);
+}
+
+int bj[maxn],sum,nowh[maxn],d[maxn],bz[maxn],bzcnt;
+// maxflow here, 稀疏图 dinic, else isap
+void bfs(int s)
+{
+    bz[ d[1]=s ]=++bzcnt;
+    for(int i=1, j=1; i<=j; i++)
+    {
+        for(int p=f1[d[i]]; p; p=nxt[p]) if (val2[p] && bz[go[p]]!=bzcnt)
+            bz[ d[++j]=go[p] ]=bzcnt;
+    }
+}
+
+int st1[maxn];
+vector<pair<int,int>> e[maxn];
+void Mincut(int l,int r)
+{
+    memcpy(val2,val,sizeof(val));
+    sum=st[r];
+
+    int flow=0;
+    while (Dinic_bfs(st[l])) flow+=Dinic_dfs(st[l],inf);
+    e[st[l]].push_back(make_pair(sum,flow)), e[sum].push_back(make_pair(st[l],flow));
+
+    bfs(st[l]);
+    int newr=l-1, newl=r+1;
+    fo(i,l,r) if (bz[st[i]]==bzcnt) st1[++newr]=st[i]; else st1[--newl]=st[i];
+    fo(i,l,r) st[i]=st1[i];
+
+    if (l<newr) Mincut(l,newr);
+    if (newl<r) Mincut(newl,r);
+}
+
+int main()
+{
+    fo(i,1,n) if (!vis[i] && f1[i])
+    {
+        num=0;
+        find(i);
+        Mincut(1,num);
+    }
+}
+
+//***************************** KM ****************************************
+
+LL lx[maxn],ly[maxn],slack[maxn];
+int f[maxn],pre[maxn];
+bool vis[maxn];
+LL KM(int nl,int nr)
+{
+    fo(i,1,nl)
+        fo(j,1,nr) lx[i]=max(lx[i],mp[i][j]);
+    fo(i,1,nl)
+    {
+        memset(slack,127,sizeof(LL)*(nr+1));
+        memset(vis,0,sizeof(bool)*(nr+1));
+        f[0]=i;
+        int py=0, nextpy;
+        for(; f[py]; py=nextpy)
+        {
+            int px=f[py];
+            LL d=inf;
+            vis[py]=1;
+            fo(j,1,nr) if (!vis[j])
+            {
+                if (lx[px]+ly[j]-mp[px][j]<slack[j]) slack[j]=lx[px]+ly[j]-mp[px][j], pre[j]=py;
+                if (slack[j]<d) d=slack[j], nextpy=j;
+            }
+            fo(j,0,nr) if (vis[j]) lx[f[j]]-=d, ly[j]+=d;
+                else slack[j]-=d;
+        }
+        for(; py; py=pre[py]) f[py]=f[pre[py]];
+    }
+    LL re=0;
+    fo(i,1,nl) re+=lx[i];
+    fo(j,1,nr) re+=ly[j];
+    return re;
+}
+
+//***************************** LCA ***************************************
+
+//倍增
+int deep[maxn],fa[maxn][MX+1];
+int lca(int x,int y) {
+    if (deep[x]<deep[y]) swap(x,y);
+    fd(i,MX,0)
+        while (deep[fa[x][i]]>=deep[y]) x=fa[x][i];
+    if (x==y) return x;
+    fd(i,MX,0)
+        while (fa[x][i]!=fa[y][i]) x=fa[x][i], y=fa[y][i];
+    return fa[x][0];
+}
+
+//tarjan
+int totq,goq[2*maxm],num[2*maxm],nextq[2*maxm],fq[maxn];
+void inq(int x,int y,int z) {
+    goq[++totq]=y;
+    num[totq]=z;
+    nextq[totq]=fq[x];
+    fq[x]=totq;
+}
+int lca[maxm],fa[maxn];
+bool bz[maxn];
+int get(int x) {
+    if (fa[x]==x) return x;
+    return fa[x]=get(fa[x]);
+}
+void tarjan(int k,int last) { //ordinary
+    fa[k]=k;
+    for(int p=f1[k]; p; p=next[p]) if (go[p]!=last) {
+        tarjan(go[p],k);
+        fa[go[p]]=k;
+    }
+    bz[k]=1;
+    for(int p=fq[k]; p; p=nextq[p])
+        if (bz[goq[p]]) lca[num[p]]=get(goq[p]); else inq(goq[p],k,num[p]);
+}
+
+void tarjan(int k,int last) { //支持维护值
+    fa[k]=k;
+    for(int p=f1[k]; p; p=next[p]) if (go[p]!=last) {
+        tarjan(go[p],k);
+        f[go[p]]+=val[p];
+        fa[go[p]]=k;
+    }
+    bz[k]=1;
+    for(int p=fq[k]; p; p=nextq[p]) if (bz[goq[p]]) {
+        int t=get(goq[p]);
+        ans[num[p]]=valq[p]+f[goq[p]];
+        if (t!=k) inq(t,k,f[goq[p]],num[p]); else lca[num[p]]=t;
+    } else inq(goq[p],k,0,num[p]);
+}
+
+//rmq
+int fa[2*maxn][MX+5],deep[maxn],ap[2*maxn],fir[2*maxn],Log[2*maxn],er[MX+5];
+void rmq_pre() {
+    fo(i,1,ap[0]) fa[i][0]=ap[i], Log[i]=log(i)/log(2);
+    fo(i,0,MX) er[i]=1<<i;
+    fo(j,1,MX)
+        fo(i,1,ap[0]) {
+            fa[i][j]=fa[i][j-1];
+            if (i+er[j-1]<=ap[0] && deep[fa[i+er[j-1]][j-1]]<deep[fa[i][j]])
+                fa[i][j]=fa[i+er[j-1]][j-1];
+        }
+}
+int lca(int x,int y) {
+    x=fir[x], y=fir[y];
+    if (x>y) swap(x,y);
+    int t=Log[y-x+1];
+    return (deep[fa[x][t]]<deep[fa[y-er[t]+1][t]]) ?fa[x][t] :fa[y-er[t]+1][t] ;
+}
+
+void dfs_pre(int k,int last) {
+    deep[k]=deep[last]+1;
+    ap[++ap[0]]=k, fir[k]=ap[0];
+    for(int p=f1[k]; p; p=next[p]) if (go[p]!=last) {
+        dfs_pre(go[p],k);
+        ap[++ap[0]]=k;
+    }
+}
+
+//***************************** LeftTree **********************************
+
+struct node{
+    int val,l,r,fa,dis;
+};
+
+node lt[maxn];
+int tot,ga[maxn];
+int New(int val=0)
+{
+    lt[++tot]=(node){val,0,0,0,0};
+    ga[tot]=tot;
+    return tot;
+}
+int merge(int a,int b)
+{
+    if (!a) return b;
+    if (!b) return a;
+    if (lt[a].val>lt[b].val || lt[a].val==lt[b].val && a>b) swap(a,b);
+    lt[a].r=merge(lt[a].r,b);
+    lt[lt[a].r].fa=a;
+    ga[lt[a].r]=a;
+    if (lt[lt[a].r].dis>lt[lt[a].l].dis) swap(lt[a].l,lt[a].r);
+    lt[a].dis=(lt[a].r==0) ?0 :lt[lt[a].r].dis+1;
+    return a;
+}
+int top(int x) {return (ga[x]==x) ?x :ga[x]=top(ga[x]) ;}
+void pop(int x)
+{
+    int t=merge(lt[x].l,lt[x].r);
+    lt[t].fa=lt[x].fa;
+    ga[x]=(top(x)==x) ?t :top(x);
+    ga[t]=ga[x];
+    for(int i=lt[x].fa; i; i=lt[i].fa) if (lt[lt[i].l].dis<lt[lt[i].r].dis)
+    {
+        swap(lt[i].l,lt[i].r);
+        lt[i].dis=lt[lt[i].r].dis+1;
+    } else break;
+    lt[x].fa=-1;
+}
+void push(int x,int val)
+{
+    merge(top(x),New(val));
+}
+
+// init : lt[0].dis=-1;
+
+//***************************** maxflow ***********************************
+
+//isap+gap+当前弧
+int bj[maxsum],gap[maxsum],sum,nowh[maxsum],d[maxsum];
+void init_Maxflow() {
+    memset(bj,0,sizeof(bj));
+    memset(gap,0,sizeof(gap)); gap[0]=sum+1;
+    memcpy(nowh,f1,sizeof(nowh));
+    d[1]=sum;
+    for(int i=1, j=1; i<=j; i++) {
+        for(int p=f1[d[i]]; p; p=e[p].nxt) if (e[p].go!=sum && !bj[e[p].go]) {
+            bj[e[p].go]=bj[d[i]]+1;
+            gap[0]--, gap[bj[e[p].go]]++;
+            d[++j]=e[p].go;
+        }
+    }
+}
+int Maxflow(int k,int flow) {
+    if (k==sum) return flow;
+    int re=0;
+    for(int &p=nowh[k]; p; p=e[p].nxt) if (e[p].val && bj[k]==bj[e[p].go]+1) {
+        int fl=Maxflow(e[p].go, (flow-re<e[p].val) ?(flow-re) :e[p].val);
+        e[p].val-=fl;
+        e[(p&1) ?p+1 :p-1 ].val+=fl;
+        re+=fl;
+        if (re==flow || bj[0]>sum) return re;
+    }
+    nowh[k]=f1[k];
+    if ((--gap[bj[k]])==0) bj[0]=sum+1; else bj[k]++;
+    gap[bj[k]]++;
+    return re;
+}
+//dinic+当前弧
+bool Dinic_bfs(int s) {
+    memset(bj,255,sizeof(bj));
+    memcpy(nowh,f1,sizeof(nowh));
+    bj[ d[1]=s ]=0;
+    for(int i=1, j=1; i<=j; i++) {
+        for(int p=f1[d[i]]; p; p=e[p].nxt) if (e[p].val && bj[e[p].go]==-1) {
+            bj[e[p].go]=bj[d[i]]+1;
+            d[++j]=e[p].go;
+        }
+    }
+    return bj[sum]!=-1;
+}
+int Dinic_dfs(int k,int flow) {
+    if (k==sum) return flow;
+    int re=0;
+    for(int &p=nowh[k]; p; p=e[p].nxt) if (e[p].val && bj[k]+1==bj[e[p].go]) {
+        int fl=Dinic_dfs(e[p].go, (flow-re<e[p].val) ?(flow-re) :e[p].val);
+        e[p].val-=fl;
+        e[(p&1) ?p+1 :p-1 ].val+=fl;
+        re+=fl;
+        if (re==flow) return re;
+    }
+    return re;
+}
+
+//***************************** random Hung *************************
+
+int bz[maxn],tim,pt[maxn];
+bool Hung(int x,int tim) {
+    if (bz[x]==tim) return 0;
+    bz[x]=tim;
+    random_shuffle(e[x].begin(),e[x].end());
+    for(int go:e[x]) {
+        int k=pt[go];
+        pt[k]=0, pt[x]=go, pt[go]=x;
+        if (!k || Hung(k,tim)) return 1;
+        pt[k]=go, pt[go]=k, pt[x]=0;
+    }
+    return 0;
+}
+int main() {
+    fo(i,1,n) pmt[i]=i;
+    random_shuffle(pmt+1,pmt+1+n);
+    int tim=0, cnt=0;
+    fo(j,1,5)
+        fo(i,1,n) if (!pt[pmt[i]]) Hung(pmt[i],++tim);
+}
+
+//***************************** round square tree *************************
+
+//广义（任意路径都是圆方交替）
+int sum,dfn[maxn],low[maxn],z[maxn],z0,num[2*maxn],nn;
+vector<int> e[2*maxn];
+void tarjan(int k,int last) {
+    dfn[k]=low[k]=++sum;
+    z[++z0]=k;
+    for(int p=f1[k]; p; p=nxt[p]) if (bh[p]!=last) {
+        if (!dfn[go[p]]) {
+            tarjan(go[p],bh[p]);
+            low[k]=min(low[k],low[go[p]]);
+
+            if (low[go[p]]>=dfn[k]) {
+                num[++nn]=1;
+                e[nn].push_back(k), e[k].push_back(nn);
+                do {
+                    num[nn]++;
+                    e[nn].push_back(z[z0]), e[z[z0]].push_back(nn);
+                } while (z[z0--]!=go[p]);
+            }
+        } else low[k]=min(low[k],dfn[go[p]]);
+    }
+}
+
+//***************************** virtual tree ******************************
+
+int p0,p[2*maxn],z[maxn],z0;
+bool cmpP(const int &a,const int &b) {return dfn[a]<dfn[b];}
+void make_vtree() {
+    tot=0;
+    sort(p+1,p+1+p0,cmpP);
+    int t=p0;
+    fo(i,1,t-1) p[++p0]=lca(p[i],p[i+1]);
+    sort(p+1,p+1+p0,cmpP);
+    f1[ z[z0=1]=1 ]=0;
+    p[0]=1;
+    fo(i,1,p0) if (p[i]!=p[i-1]) {
+        for(; z0 && (dfn[p[i]]<dfn[z[z0]] || en[z[z0]]<dfn[p[i]]); z0--) ins(z[z0-1],z[z0]);
+        f1[ z[++z0]=p[i] ]=0;
+    }
+    fo(i,1,z0-1) ins(z[i],z[i+1]);
+}
+
+//***************************** Tools *************************************
+
+//乘法取模黑科技 Claris
+LL mul(LL a,LL b,LL n){return(a*b-(LL)(a/(long double)n*b+1e-3)*n+n)%n;}
+
+//split a string by whitespace
+vector<string> split_str(string str) {
+    vector<string> result;
+    istringstream iss(str);
+    string s;
+    while ( getline( iss, s, ' ' ) ) result.push_back(s);
+    return result;
+}
+\end{lstlisting}
+
+\end{document} 
