@@ -4,7 +4,7 @@ using namespace std;
 typedef long long LL;
 
 namespace IO {
-	char In[1<<20],*p1=In,*p2=In,c,Out[1<<23],*Op=Out,St[10],*Tp=St;
+	char In[1<<20],*p1=In,*p2=In,c,Out[1<<23],*Op=Out,St[100],*Tp=St;
 	#define Getc (p1==p2&&(p2=(p1=In)+fread(In,1,1<<20,stdin),p1==p2)?EOF:*p1++)
 	inline void Flush(){fwrite(Out,1,Op-Out,stdout);}
 	inline int read(int x=0)   {

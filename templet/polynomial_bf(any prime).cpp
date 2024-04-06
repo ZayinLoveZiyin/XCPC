@@ -200,6 +200,20 @@ namespace polynomial  {
             ans[i-k]=a[i];
         return ans;
     } 
+    inline bool operator < (const poly& a,const poly& b)   {
+        if (a.size()!=b.size()) return a.size()<b.size();
+        for (int i=0;i<a.size();++i)
+            if (a[i]!=b[i])
+                return a[i]<b[i];
+        return 0;
+    }    
+    inline bool operator == (const poly& a,const poly& b)   {
+        if (a.size()!=b.size()) return 0;
+        for (int i=0;i<a.size();++i)
+            if (a[i]!=b[i])
+                return 0;
+        return 1;
+    }
 }
 
 using namespace polynomial;
