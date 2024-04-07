@@ -49,12 +49,15 @@
 \newgeometry{margin=2.5cm}
 \fancyheadoffset{0pt}% recalculate headwidth for fancyhdr
 
+
 \begin{document}
 % \begin{landscape}
+\setlength{\columnsep}{1cm}
 \begin{multicols}{2}
   \maketitle
 
   \section{Polynomials}
+
 
   \begin{lstlisting}
 namespace polynomial {
@@ -451,6 +454,33 @@ class poly : public std::vector<T> {
 
 using poly = polynomial::poly<zint>;
 \end{lstlisting}
+
+
+  \subsection{多项式技巧}
+
+  \begin{enumerate}
+    \item 若 $f(x)=\prod_i(1+x+x^2+\cdots)^{g_i}=\prod_i(\frac1{1-x^i})^{g_i}$.
+
+          两边取对数：$\ln f(x)=-\sum_i g_i\cdot ln(1-x^i)=\sum_ig_i\cdot\sum_{j=1}^\infty\frac{x^{ij}}j$.
+
+          两边取导数：$\frac{\sum_{i=1}^\infty(n-1)f_nx^{n-2}}{\sum_{i=1}^\infty f_nx^{n-1}}=\sum_iig_i\cdot\sum_{j=1}^\infty x^{ij-1}$ .
+
+          即：$\sum_{i=1}^\infty(n-1)f_nx^{n-2}=(\sum_{i=1}^\infty f_nx^{n-1})\cdot(\sum_iig_i\cdot\sum_{j=1}^\infty x^{ij-1})$.
+
+          乘以$x^2$：$\sum_{i=1}^\infty(n-1)f_nx^n=(\sum_{i=1}^\infty f_nx^n)\cdot(\sum_iig_i\cdot\sum_{j=1}^\infty x^{ij})$
+
+          令$t=ij$并交换求和顺序：$\sum_iig_i\cdot\sum_{j=1}^\infty x^{ij}=\sum_{t=1}^\infty x^t\cdot\sum_{i|t}ig_i$
+
+          即：$\sum_{i=1}^\infty(n-1)f_nx^n=(\sum_{i=1}^\infty f_nx^n)\cdot(\sum_{t=1}^\infty x^t\cdot\sum_{i|t}ig_i)$
+
+          对应项系数相等：$(n-1)f_n=\sum_i(\sum_{j|i}jg_j)f_{n-i}$，即
+
+          $$f_n=\frac1{n-1}\sum_i(\sum_{j|i}jg_j)f_{n-i}$$
+
+          若令$ft_n=\sum_{j|i}jg_j$，则$f_n=\frac1{n-1}\sum_ift_if_{n-i}$.
+    \item 若 $F(x)=\sum_{i=0}^{m}f_i\cdot x^i$，那么 $G(x)=F^k(x)$ 有
+          $$g_n=\frac{1}{f_0}\cdot \left(\frac{k+1}{n}\sum_{i=1}^{m}if_i\cdot g_{n-i}-\sum_{i=1}^{m}f_i\cdot g_{n-i} \right)$$
+  \end{enumerate}
 
   \section{Strings}
 
@@ -1578,6 +1608,37 @@ int main() {
     \item[杨表] 标准杨表钩长公式：$\frac{n!}{\prod hook(i,j)}$，其中 $hook(i,j) = |(i,j)\text{下方}| + |(i,j)\text{右方}|+\text{自己}$；\\
           半标准杨表（非严格递增）钩长公式：$\prod_{(i,j)} \frac{n+j-i}{hook(i,j)}$ \\
           不交的 $k$ 个上升子序列长度之和最大 $\Leftrightarrow$ 上升杨表前 $k$ 层长度和（不降子序列 $\Leftrightarrow$ 半标准杨表）。序列依次插入杨表，若能放第 1 行末尾则放，否则取第 1 行大于当前数的最小的一个，取出，插入第 2 行。
+
+    \item[约数个数表]
+
+          \begin{tabular}{@{}|c|cccccc|}
+            \hline
+            $n$    & 10    & 1e2   & 1e3   & 1e4   & 1e5   & 1e6    \\
+            \hline
+            $d(n)$ & 4     & 12    & 32    & 64    & 128   & 240    \\
+            \hline
+            $n$    & 1e7   & 1e8   & 1e9   & 1e10  & 1e11  & 1e12   \\
+            \hline
+            $d(n)$ & 448   & 768   & 1344  & 2304  & 4032  & 6720   \\
+            \hline
+            $n$    & 1e13  & 1e14  & 1e15  & 1e16  & 1e17  & 1e18   \\
+            \hline
+            $d(n)$ & 10752 & 17280 & 26880 & 41472 & 64512 & 103680 \\
+            \hline
+          \end{tabular}
+    \item[整数拆分数]
+
+          \begin{tabular}{@{}|c|ccccc|}
+            \hline
+            $n$    & 10     & 20      & 30       & 40       & 50        \\
+            \hline
+            $p(n)$ & 42     & 627     & 5604     & 37338    & 204226    \\
+            \hline
+            $n$    & 60     & 70      & 80       & 90       & 100       \\
+            \hline
+            $p(n)$ & 966467 & 4087968 & 15796476 & 56634173 & 190569292 \\
+            \hline
+          \end{tabular}
     \item[整数拆分] 五边形数：$\phi(x) = \prod_{i=1}^{\infty} (1-x^i) = 1+ \sum_{i=1}^{\infty} (-1)^i x^{\frac{i(3i\pm 1)}{2}}$ \\
           整数拆分：$F(x) = \prod_{i=1}^{\infty} (1+x^i+x^{2i}+ \cdots) = \prod_{i=1}^{\infty} \frac{1}{1-x^i}$ \\
           $\phi(x)$ 与 $F(x)$ 互为逆多项式 \\
@@ -1611,44 +1672,34 @@ int main() {
           \textcircled{2} $ax^2 + bx \equiv c \pmod p$ \\
           解：配方得 $(2ax+b)^2 \equiv b^2 - 4ac \pmod p$，解+exgcd
     \item[线性逆元] $i^{-1} = - \lfloor \frac{p}{i} \rfloor \cdot (p \pmod i)^{-1}$
-    \item[powerful number] 定义：所含质因子次数全部大于 1 的数，这样的数只有 $\sqrt n$ 个，可以暴力求。\\
+    \item[powerful number] 定义：所含质因子次数全部大于 1 的数，只有 $\sqrt n$ 个，可以暴力求。\\
           积性函数求和 $\sum_{i=1}^n F(i)$，找一个积性函数 $G$ 使得 $G(p) = F(p)$，则 $H = \frac FG$ 只在 powerful number 下有非 0 值。
           $$
             \sum_{i=1}^n F(i) = \sum_{i=1}^n H(i) \sum_{j=1}^{\lfloor \frac ni \rfloor} G(j) = \sum_{i \in \text{powerful num}} H(i) S_G(\lfloor \frac ni \rfloor)
           $$
     \item[min25 数组] $g(n,j) = \sum_{i=1}^n [i \in P \lor minp_i > p_j] f(i)$ \\
           $S(n,j) = \sum_{i=1}^n [minp_i \ge p_j] f(i)$
+    \item[Sherman-Morrison] $$(A+uv^T)^{-1}=A^{-1}-\frac{A^{-1}uv^TA^{-1}}{1+v^TA^{-1}u}$$
+          $$|A|\cdot A^{-1}=adj A,(adj A\text{是代数余子式矩阵的转置})$$
 
-    \item[约数个数表]
+    \item[新数论分块] $(\lfloor \frac{n}{i}\rfloor,\lceil\frac{i}{n\%i}\rceil)$的有效取值只有$O(\sqrt n \ln n)$
+          \begin{lstlisting}
+for (LL i=1,a,j;i<=n;i=j+1)	{
+j=n/(a=n/i);
+  for (LL l=1,b,r;l<=j;l=r+1)	{
+    if (n%l==0)	{
+      assert(l==j);//当x|n时一定出现在整除分块的末尾处。
+      //....
+    } else	{
+      // cell(r/(n-ar))<=b -> r/(n-ar)<=b -> r<=b*(n-ar) -> r<=bn/(ab+1)
+      b=l/(n%l);
+      r=b*n/(a*b+1);
+      //.....
+    }
+  }
+}
+\end{lstlisting}
 
-          \begin{tabular}{@{}|c|ccccccc|}
-            \hline
-            $n$    & 10    & 1e2   & 1e3   & 1e4    & 1e5  & 1e6   & 1e7   \\
-            \hline
-            $d(n)$ & 4     & 12    & 32    & 64     & 128  & 240   & 448   \\
-            \hline
-            $n$    & 1e8   & 1e9   & 1e10  & 1e11   & 1e12 & 1e13  & 1e14  \\
-            \hline
-            $d(n)$ & 768   & 1344  & 2304  & 4032   & 6720 & 10752 & 17280 \\
-            \hline
-            $n$    & 1e15  & 1e16  & 1e17  & 1e18   &      &       &       \\
-            \hline
-            $d(n)$ & 26880 & 41472 & 64512 & 103680 &      &       &       \\
-            \hline
-          \end{tabular}
-    \item[整数拆分数]
-
-          \begin{tabular}{@{}|c|ccccc|}
-            \hline
-            $n$    & 10     & 20      & 30       & 40       & 50        \\
-            \hline
-            $p(n)$ & 42     & 627     & 5604     & 37338    & 204226    \\
-            \hline
-            $n$    & 60     & 70      & 80       & 90       & 100       \\
-            \hline
-            $p(n)$ & 966467 & 4087968 & 15796476 & 56634173 & 190569292 \\
-            \hline
-          \end{tabular}
   \end{description}
 
   \begin{lstlisting}
