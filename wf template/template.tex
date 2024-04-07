@@ -1724,8 +1724,8 @@ LL pollard_rho(LL n) {
 //***************************** similar gcd *******************************
 
 struct FGH{
-    LL f,g,h;    // f=\sum_{i=0}^n (a*i+b)/c, g=\sum_{i=0}^n i*(a*i+b)/c, h=\sum_{i=0}^n ((a*i+b)/c)^2
-};
+    LL f,g,h;
+};  // f=\sum_{i=0}^n (a*i+b)/c, g=\sum_{i=0}^n i*(a*i+b)/c, h=\sum_{i=0}^n ((a*i+b)/c)^2
 
 FGH calc(LL a,LL b,LL c,LL n) {
     LL ac=a/c, bc=b/c, sum1=n*(n+1)%mo*inv2%mo, sum2=n*(n+1)%mo*(2*n+1)%mo*inv6%mo;
@@ -1789,6 +1789,56 @@ LL min25_S(LL x,int j,int k) {
 \end{description}
 
 \begin{lstlisting}
+//***************************** Blossom ***********************************
+
+int ga[maxp];
+int get(int x) {return (ga[x]==x) ?x :ga[x]=get(ga[x]) ;}
+
+int d[maxp],di,dj,sum,pt[maxp],pf[maxp],clr[maxp],nowT,bz[maxp];
+int lca(int x,int y) {
+	for(nowT++, x=get(x), y=get(y); bz[x]!=nowT; ) {
+		bz[x]=nowT;
+		x=get(pf[pt[x]]);
+		swap(x,y);
+	}
+	return x;
+}
+void shrink(int x,int y,int rt) {
+	for(; get(x)!=rt; x=pf[y]) {
+		pf[x]=y;
+		y=pt[x];
+		if (clr[y]==1) clr[ d[++dj]=y ]=0;
+		ga[x]=ga[y]=rt;
+	}
+}
+bool Blossom(int st) {
+	fo(i,1,sum) ga[i]=i;
+	memset(clr,255,sizeof(clr)); clr[st]=0;
+	d[1]=st;
+	for(di=1, dj=1; di<=dj; di++) {
+		int now=d[di];
+		for(int p=f1[now]; p; p=next[p]) if (clr[go[p]]==-1) {
+			clr[go[p]]=1;
+			pf[go[p]]=now;
+			if (!pt[go[p]]) {
+				for(int x=now, y=go[p], t; x; y=t, x=pf[y]) {
+					t=pt[x];
+					pt[x]=y, pt[y]=x;
+				}
+				return 1;
+			} else {
+				d[++dj]=pt[go[p]];
+				clr[pt[go[p]]]=0;
+			}
+		} else if (clr[go[p]]==0 && get(go[p])!=get(now)) {
+			int rt=lca(go[p],now);
+			shrink(go[p],now,rt);
+			shrink(now,go[p],rt);
+		}
+	}
+	return 0;
+}
+
 //***************************** dominator tree (from CTL) ******************
 
 const int maxn = 310000;
