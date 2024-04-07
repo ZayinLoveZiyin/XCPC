@@ -1474,11 +1474,8 @@ struct Voronoi {
 
 }  // namespace geometry2d
 
-  \end{lstlisting}
+//***************************** 圆的面积并 ******************
 
-  ************************** 圆的面积并 ****************************
-
-  \begin{lstlisting}
   // Area[i] 表示覆盖次数大于等于i的面积，复杂度 O(n^2logn)
 struct P {
   ouble x, y;
@@ -1575,9 +1572,69 @@ int main() {
 \end{lstlisting}
 
 
-  \section{Math and Number Theory}
+\section{Math and Number Theory}
 
-  \begin{lstlisting}
+\begin{description}
+  \item[杨表] 标准杨表钩长公式：$\frac{n!}{\prod hook(i,j)}$，其中 $hook(i,j) = |(i,j)\text{下方}| + |(i,j)\text{右方}|+\text{自己}$；\\
+      半标准杨表（非严格递增）钩长公式：$\prod_{(i,j)} \frac{n+j-i}{hook(i,j)}$ \\
+      不交的 $k$ 个上升子序列长度之和最大 $\Leftrightarrow$ 上升杨表前 $k$ 层长度和（不降子序列 $\Leftrightarrow$ 半标准杨表）。序列依次插入杨表，若能放第 1 行末尾则放，否则取第 1 行大于当前数的最小的一个，取出，插入第 2 行。
+  \item[整数拆分] 五边形数：$\phi(x) = \prod_{i=1}^{\infty} (1-x^i) = 1+ \sum_{i=1}^{\infty} (-1)^i x^{\frac{i(3i\pm 1)}{2}}$ \\
+      整数拆分：$F(x) = \prod_{i=1}^{\infty} (1+x^i+x^{2i}+ \cdots) = \prod_{i=1}^{\infty} \frac{1}{1-x^i}$ \\
+      $\phi(x)$ 与 $F(x)$ 互为逆多项式 \\
+      递推：$F(n) = F(n-1) + F(n-2) - F(n-5) - F(n-7) \cdots$
+  \item[单位根反演] $[i \bmod k = 0] = \frac{1}{k} \sum_{j=0}^{k-1} \omega^{ij}$，$\omega$ 为 $k$ 次单位根
+  \item[二项式反演] $a_n = \sum_{i=0}^n \binom{n}{i} b_i \Rightarrow b_n = \sum_{i=0}^n \binom{n}{i} (-1)^{n-i} a_i$
+  \item[Fibonacci] 通项：$f_n = \frac{1}{\sqrt 5} \left[ \left(\frac{1+\sqrt 5}{2}\right)^n - \left(\frac{1-\sqrt 5}{2}\right)^n \right]$
+      \begin{enumerate}
+        \item 相邻两项互质
+        \item $f_{m+n} = f_{m-1} f_n + f_m f_{n+1}$
+        \item $(f_{m+n}, f_n) = (f_m, f_n)$, \ $(f_n, f_m) = f_{(n,m)}$
+        \item $\sum_{i=0}^n f_i = f_{n+2} -1$, \ $\sum_{i=0}^n f_i^2 = f_n f_{n+1}$
+        \item $f_n^2 = (-1)^{n-1} + f_{n-1} f_{n+1}$
+      \end{enumerate}
+  \item[斯特林数] 第一类：将 $p$ 个物品排成 $k$ 个非空循环排列 \\
+      $S(p,k) = (p-1)S(p-1,k) + S(p-1,k-1)$ \\
+      $S(p,0) = 0, \ S(p,p) = 1, \ S(0,0) = 1$ \\
+      第二类：将 $p$ 个物品划分成 $k$ 个非空集合（无编号盒子） \\
+      $S(p,k) = kS(p-1,k) + S(p-1,k-1)$ \\
+      $S(p,0) = 0,\ S(p,p) = 1,\ S(0,0) = 1$ \\
+      $$
+      S(n,m) = \frac{1}{m!} \sum_{k=0}^m (-1)^k \binom{m}{k} (m-k)^n = \sum_{k=0}^m \frac{(-1)^k (m-k)^n}{k!(m-k)!}
+      $$
+  \item[二次剩余] \textcircled{1} $x^2 \equiv n \pmod p$ \\
+      有解 iff $n^{\frac{p-1}{2}} \equiv 1 \pmod p$ \\
+      解：随机 $a$ 使得 $w = a^2 - n$ 非二次剩余，则 $x = \pm (a+ \sqrt w)^{\frac{p+1}{2}}$ \\
+      \textcircled{2} $ax^2 + bx \equiv c \pmod p$ \\
+      解：配方得 $(2ax+b)^2 \equiv b^2 - 4ac \pmod p$，解+exgcd
+  \item[线性逆元] $i^{-1} = - \lfloor \frac{p}{i} \rfloor \cdot (p \pmod i)^{-1}$
+  \item[powerful number] 定义：所含质因子次数全部大于 1 的数，这样的数只有 $\sqrt n$ 个，可以暴力求。\\
+      积性函数求和 $\sum_{i=1}^n F(i)$，找一个积性函数 $G$ 使得 $G(p) = F(p)$，则 $H = \frac FG$ 只在 powerful number 下有非 0 值。
+      $$
+      \sum_{i=1}^n F(i) = \sum_{i=1}^n H(i) \sum_{j=1}^{\lfloor \frac ni \rfloor} G(j) = \sum_{i \in \text{powerful num}} H(i) S_G(\lfloor \frac ni \rfloor)
+      $$
+  \item[min25 数组] $g(n,j) = \sum_{i=1}^n [i \in P \lor minp_i > p_j] f(i)$ \\
+      $S(n,j) = \sum_{i=1}^n [minp_i \ge p_j] f(i)$
+\end{description}
+
+约数个数表
+
+\begin{tabular}{@{}|c|ccccccc|}
+  \hline
+  $n$ & 10 & 1e2 & 1e3 & 1e4 & 1e5 & 1e6 & 1e7 \\
+  \hline
+  $d(n)$ & 4 & 12 & 32 & 64 & 128 & 240 & 448 \\
+  \hline
+  $n$ & 1e8 & 1e9 & 1e10 & 1e11 & 1e12 & 1e13 & 1e14 \\
+  \hline
+  $d(n)$ & 768 & 1344 & 2304 & 4032 & 6720 & 10752 & 17280 \\
+  \hline
+  $n$ & 1e15 & 1e16 & 1e17 & 1e18 &&& \\
+  \hline
+  $d(n)$ & 26880 & 41472 & 64512 & 103680 &&& \\
+  \hline
+\end{tabular}
+
+\begin{lstlisting}
 //***************************** combinatorics mod (exLucas) *************************
 
 LL p[maxp],p0,pk[maxp],num[maxp],fac[maxp];
@@ -1723,10 +1780,16 @@ LL min25_S(LL x,int j,int k) {
 }
 \end{lstlisting}
 
-  \section{Others}
+\section{Others}
 
-  \begin{lstlisting}
-//***************************** dominator tree (other's) ******************
+\begin{description}
+  \item[有向图最大费用循环流] 思路：先让正权边全部流满，再调整 \\
+      做法：先强制流掉所有正权边（并加入答案），然后流量盈余的点连向汇点，源点连向流量亏损的点，答案减去 MCMF
+  \item[BEST 定理] 图 $G$ 从点 $s$ 出发的欧拉路径数 $= ts(G) \prod (deg(v)-1)!$，其中 $ts(G)$ 表示以 $s$ 为根的外向树个数（入度矩阵$-$邻接矩阵，求 $\det$）。前提：每个点出度入度相同。
+\end{description}
+
+\begin{lstlisting}
+//***************************** dominator tree (from CTL) ******************
 
 const int maxn = 310000;
 const int maxm = 1050000;
@@ -2154,4 +2217,4 @@ vector<string> split_str(string str) {
 \end{multicols}
 % \end{landscape}
 
-\end{document}
+\end{document} 
